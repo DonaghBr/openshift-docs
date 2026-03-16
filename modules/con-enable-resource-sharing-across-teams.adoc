@@ -1,0 +1,34 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/index.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="con-enable-resource-sharing-across-teams_{context}"]
+= Enabling resource sharing across teams
+
+[role="_abstract"]
+Configure resource sharing in {kueue-name} so that teams can borrow unused capacity from each other while respecting quota boundaries. {kueue-name} provides two complementary mechanisms for resource sharing: cohorts and fair sharing.
+
+== Cohorts
+
+A cohort is a group of cluster queues that can borrow and lend unused resources among each other. When a team's cluster queue has unused capacity, other cluster queues in the same cohort can borrow those resources.
+
+Use cohorts when you want teams to share a common pool of resources without permanent reallocation.
+
+For configuration procedures, see xref:../kueue/using-cohorts.adoc#using-cohorts[Using cohorts].
+
+== Fair sharing
+
+Fair sharing defines how resources are distributed when multiple cluster queues in a cohort compete for the same resources. You can configure fair-sharing policies to control the weight each queue receives relative to others.
+
+Use fair sharing when you need fine-grained control over how borrowed resources are allocated across competing teams.
+
+For configuration procedures, see xref:../kueue/configuring-fairsharing.adoc#configuring-fairsharing[Configuring fair sharing].
+
+== When to use each mechanism
+
+Cohorts:: Enable resource borrowing between teams. Start here if teams have variable workloads and you want to maximize cluster utilization.
+
+Fair sharing:: Fine-tune allocation ratios when multiple teams borrow from the same pool. Add fair-sharing policies after cohorts are working and you need to prioritize certain teams.
+
+You can use both mechanisms together: cohorts define which queues can share, and fair-sharing policies define how shared resources are distributed.

@@ -1,0 +1,26 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/index.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="con-deploy-distributed-workloads_{context}"]
+= Deploying distributed workloads
+
+[role="_abstract"]
+Deploy AI workloads across nodes by using the {lws-operator} or the {js-operator}. Choose the right Operator based on your workload pattern: leader-worker inference or coordinated training.
+
+== Choose your deployment pattern
+
+{lws-operator} (inference pattern):: Use for multi-node AI/ML inference where a large language model is sharded across nodes. The {lws-operator} manages groups of pods with one leader and multiple workers, all sharing identical lifecycle stages.
++
+For deployment procedures, see xref:../leader_worker_set/lws-managing.adoc#lws-managing[Managing distributed workloads with the {lws-operator}].
+
+{js-operator} (training pattern):: Use for distributed training, high-performance computing (HPC), or batch workloads that require coordinated execution across multiple jobs. The {js-operator} provides automatic failure recovery, stable networking, and startup sequencing.
++
+For deployment procedures, see xref:../jobset_operator/managing-jobset.adoc#managing-jobset[Managing workloads with the {js-operator}].
+
+== Running distributed workloads with {kueue-name}
+
+After deploying distributed workloads, use {kueue-name} to manage their admission through queue-based scheduling. This ensures distributed jobs respect quota limits and are fairly scheduled alongside other workloads.
+
+For information about submitting jobs to {kueue-name} queues, see xref:../kueue/running-kueue-jobs.adoc#running-kueue-jobs[Running jobs with quota limits].

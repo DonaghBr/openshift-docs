@@ -1,0 +1,39 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/index.adoc
+
+:_mod-docs-content-type: PROCEDURE
+[id="proc-upgrade-kueue_{context}"]
+= Upgrading {kueue-name}
+
+[role="_abstract"]
+Upgrade {kueue-name} to access new features and bug fixes. {kueue-name} is managed through the Operator Lifecycle Manager (OLM), which handles operator upgrades.
+
+// TODO: Review — coordinate with Kueue engineering for version-specific upgrade notes
+
+.Prerequisites
+
+* You have cluster administrator privileges.
+* {kueue-name} is installed on the cluster.
+
+.Procedure
+
+// TODO: Write content — document the OLM-based upgrade path:
+// 1. Check current operator version
+// 2. Review release notes for breaking changes
+// 3. Verify CRD compatibility
+// 4. Drain or suspend active workloads (if required by the upgrade)
+// 5. Trigger OLM upgrade (approval strategy: automatic vs manual)
+// 6. Verify CRDs are updated
+// 7. Verify workloads resume correctly
+
+. Check the current version of the {kueue-name} Operator in the {product-title} web console or by using the CLI.
+
+. Review the xref:../kueue/release-notes.adoc#release-notes[release notes] for the target version to identify any breaking changes or migration requirements.
+
+. Upgrade the operator through OLM. For general OLM upgrade procedures, see xref:../../operators/admin/olm-upgrading-operators.adoc#olm-upgrading-operators[Updating installed Operators].
+
+.Verification
+
+* Verify that the {kueue-name} Operator pod is running with the new version.
+* Verify that existing workloads and queues continue to function correctly.

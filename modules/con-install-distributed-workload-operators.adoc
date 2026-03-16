@@ -1,0 +1,33 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/index.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="con-install-distributed-workload-operators_{context}"]
+= Installing distributed workload operators
+
+[role="_abstract"]
+Install the {lws-operator} and {js-operator} to enable multi-node inference and distributed training workloads. After installing the operators, integrate them with {kueue-name} to enable queue-based scheduling for distributed jobs.
+
+== Installation sequence
+
+Install the operators in the following order:
+
+. *Install the {cert-manager-operator}* — Required by the {lws-operator}. See xref:../../security/cert_manager_operator/cert-manager-operator-install.adoc#installing-the-cert-manager-operator-for-red-hat-openshift[Installing the {cert-manager-operator}].
+
+. *Install the {lws-operator}* — Enables leader-worker group deployments for multi-node inference.
+// TODO: Review — add xref to LWS install procedure when a standalone install assembly exists
+
+. *Install the {js-operator}* — Enables coordinated multi-job workloads for distributed training and high-performance computing (HPC). See xref:../jobset_operator/jobset-install.adoc#js-installing[Installing the {js-operator}].
+
+. *Integrate with {kueue-name}* — After installing the operators, configure {kueue-name} to manage their workloads through queue-based scheduling:
+** xref:../kueue/integrating-lws.adoc#integrating-lws[Integrating the {lws-operator}]
+** xref:../kueue/integrating-jobset.adoc#integrating-jobset[Integrating the {js-operator}]
+
+== When to install each operator
+
+{lws-operator}:: Install when you need to shard large language models across multiple nodes for inference. The {lws-operator} manages groups of pods (one leader, multiple workers) as a single unit.
+
+{js-operator}:: Install when you need to run coordinated batch workloads such as distributed AI training or high-performance computing. The {js-operator} provides failure recovery, stable networking, and startup control.
+
+You can install both operators on the same cluster. If you are also using {kueue-name}, integrate both operators with {kueue-name} to benefit from queue-based admission control.

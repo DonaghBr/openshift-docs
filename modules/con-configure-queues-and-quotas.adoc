@@ -1,0 +1,37 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/index.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="con-configure-queues-and-quotas_{context}"]
+= Configuring queues and quotas for resource governance
+
+[role="_abstract"]
+Set up resource governance in {kueue-name} by configuring cluster queues, resource flavors, and local queues. This establishes the foundation for fair resource allocation across teams and workloads.
+
+== Resource governance workflow
+
+Configure resource governance in the following order:
+
+. *Create a `ClusterQueue`* — Defines the pool of resources available for workloads. Cluster queues enforce quotas for CPU, memory, pods, and GPU.
+
+. *Create a `ResourceFlavor`* — Describes the types of resources available in the cluster (for example, different GPU types or node pools). The cluster queue is not ready until at least one resource flavor is configured.
+
+. *Create a `LocalQueue`* — Provides a namespace-scoped entry point for users to submit workloads. Local queues point to a cluster queue and inherit its quota constraints.
+
+. *Optionally configure a default `LocalQueue`* — Name a local queue `default` so that users can submit jobs without specifying a queue label.
+
+For detailed procedures, see xref:../kueue/configuring-quotas.adoc#configuring-quotas[Configuring quotas].
+
+== Integrating distributed workload frameworks
+
+After configuring queues and quotas, integrate {kueue-name} with the {lws-operator} and {js-operator} so that distributed workloads are managed through the queue system:
+
+* xref:../kueue/integrating-lws.adoc#integrating-lws[Integrating the {lws-operator}]
+* xref:../kueue/integrating-jobset.adoc#integrating-jobset[Integrating the {js-operator}]
+
+[role="_additional-resources"]
+.Additional resources
+
+* xref:../kueue/rbac-permissions.adoc#rbac-permissions[Configuring role-based permissions]
+* link:https://kueue.sigs.k8s.io/docs/concepts/cluster_queue/[Kubernetes documentation about cluster queues]

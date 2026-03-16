@@ -1,0 +1,87 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/index.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="con-understand-ai-workload-management-options_{context}"]
+= Understanding AI workload management options
+
+[role="_abstract"]
+Choose the right operator for your AI workload based on your scheduling, coordination, and scaling requirements. {product-title} provides three operators that work together to manage AI and machine learning (ML) workloads.
+
+== Operator overview
+
+{kueue-name}::
+A Kubernetes-native queuing system that manages access to resources for jobs. {kueue-name} determines when a job waits, is admitted to start, or should be preempted. Use {kueue-name} to provide structured queues and prioritization so that workloads are handled fairly and efficiently.
++
+{kueue-name} supports all-or-nothing semantics, heterogeneous and elastic resources, and integrates with the existing Kubernetes API server, scheduler, and cluster autoscaler.
++
+For more information, see xref:../kueue/about-kueue.adoc#about-kueue[Introduction to {kueue-name}].
+
+{lws-operator}::
+Deploys groups of pods as a single, manageable unit for multi-node AI/ML inference. The {lws-operator} treats groups of pods as one unit to simplify scaling, recovery, and updates for large workloads such as sharded large language models (LLMs).
++
+Each group consists of one leader pod and multiple worker pods, all managed together with identical lifecycle stages. Rollouts, rolling updates, and pod failure restarts are performed as a group.
++
+For more information, see xref:../leader_worker_set/index.adoc#lws-about[{lws-operator} overview].
+
+{js-operator} (Technology Preview)::
+Manages large-scale, coordinated workloads such as high-performance computing (HPC) and AI training. The {js-operator} provides automatic failure recovery, stable networking, and startup control for multi-job workflows.
++
+If one part of a large training job fails, the {js-operator} can restart the entire group of workers from a saved checkpoint. Stable headless services ensure workers can find and communicate with each other, even after a failure.
++
+For more information, see xref:../jobset_operator/index.adoc#js-about[{js-operator} overview].
+
+== When to use each operator
+
+.Operator comparison
+[cols="1,1,1,1",options="header"]
+|===
+| Capability
+| {kueue-name}
+| {lws-operator}
+| {js-operator}
+
+| Primary use case
+| Job queuing and quota management
+| Multi-node inference (sharded LLMs)
+| Distributed training and HPC
+
+| Scheduling model
+| Queue-based admission with quotas
+| Group-level lifecycle management
+| Coordinated multi-job execution
+
+| Failure handling
+| Preemption and re-queuing
+| Group-level restart
+| Checkpoint-based recovery
+
+| Scaling
+| Cluster-wide quota enforcement
+| Group replica scaling
+| Multi-template job support
+
+| Integration
+| Works with the {lws-operator}, {js-operator}, and other frameworks
+| Requires {cert-manager-operator}
+| Standalone or with {kueue-name}
+|===
+
+// TODO: Review — consider linking to Appendix D (Configuration Decision Tree) when available
+
+== Personas
+
+Different personas interact with AI workload management:
+
+Batch administrators:: Manage the cluster infrastructure and establish quotas and queues.
+Batch users:: Run jobs on the cluster, such as researchers, AI/ML engineers, or data scientists.
+Serving users:: Run inference workloads to expose trained AI/ML models.
+Platform developers:: Integrate Operators with other software or contribute to upstream projects.
+
+[role="_additional-resources"]
+.Additional resources
+
+* link:https://kueue.sigs.k8s.io/docs/[Kueue documentation (Kubernetes)]
+* link:https://lws.sigs.k8s.io/docs/overview/[`LeaderWorkerSet` documentation (Kubernetes)]
+* link:https://jobset.sigs.k8s.io/docs/overview/[`JobSet` documentation (Kubernetes)]

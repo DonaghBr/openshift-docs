@@ -1,0 +1,34 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/index.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="con-submit-and-manage-queued-jobs_{context}"]
+= Submitting and managing queued jobs
+
+[role="_abstract"]
+Submit Kubernetes jobs to {kueue-name} queues and manage their lifecycle. {kueue-name} manages `Workload` objects that represent the resource requirements of a job, controlling when jobs are admitted, suspended, or preempted based on configured quotas.
+
+== How {kueue-name} manages jobs
+
+{kueue-name} does not directly manipulate jobs. Instead, it automatically creates a `Workload` object for each job and syncs decisions and statuses between the two objects. When a job is submitted:
+
+. The job is suspended by default.
+. {kueue-name} creates a corresponding `Workload` object.
+. When resources are available and quota permits, {kueue-name} admits the workload and resumes the job.
+. The Kubernetes scheduler assigns pods to nodes.
+
+== Submit jobs to a queue
+
+To submit a job with quota management, you must identify the local queue in your namespace and add the appropriate queue label to your job specification.
+
+For procedures, see xref:../kueue/running-kueue-jobs.adoc#running-kueue-jobs[Running jobs with quota limits].
+
+== Manage workloads and label policies
+
+Control how {kueue-name} discovers and manages jobs in your namespace:
+
+* *Label namespaces* — Configure which namespaces {kueue-name} monitors for jobs.
+* *Configure label policies* — Control whether {kueue-name} manages unlabeled jobs or only jobs with explicit queue labels.
+
+For procedures, see xref:../kueue/managing-workloads.adoc#managing-workloads[Managing jobs and workloads].

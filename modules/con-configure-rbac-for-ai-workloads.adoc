@@ -1,0 +1,36 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/index.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="con-configure-rbac-for-ai-workloads_{context}"]
+= Configuring role-based access control for AI workloads
+
+[role="_abstract"]
+Configure role-based access control (RBAC) to grant the appropriate permissions for administrators and users of AI workload operators. Setting up RBAC before deploying workloads ensures that users can only access the resources they need.
+
+== {kueue-name} RBAC
+
+The {kueue-name} Operator deploys two default cluster roles:
+
+kueue-batch-admin-role:: Permissions to manage cluster queues, local queues, workloads, and resource flavors. Assign this role to platform engineers and batch administrators.
+
+kueue-batch-user-role:: Permissions to manage jobs and to view local queues and workloads. Assign this role to data scientists, ML engineers, and batch users.
+
+For detailed procedures to bind these roles to users, see xref:../kueue/rbac-permissions.adoc#rbac-permissions[Configuring role-based permissions].
+
+== {lws-operator} RBAC
+
+// TODO: Review — document LWS-specific RBAC requirements when available
+The {lws-operator} uses standard Kubernetes RBAC for managing `LeaderWorkerSet` resources. Consult your cluster administrator for namespace-level permissions.
+
+== {js-operator} RBAC
+
+// TODO: Review — document JobSet-specific RBAC requirements when available
+The {js-operator} uses standard Kubernetes RBAC for managing `JobSet` resources. Consult your cluster administrator for namespace-level permissions.
+
+[role="_additional-resources"]
+.Additional resources
+
+* xref:../kueue/rbac-permissions.adoc#rbac-permissions[Configuring role-based permissions]
+* xref:../../authentication/using-rbac.adoc#using-rbac[Using RBAC to define and apply permissions]

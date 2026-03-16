@@ -10,15 +10,32 @@ toc::[]
 [role="_abstract"]
 {product-title} provides a secure, scalable foundation for running artificial intelligence (AI) workloads across training, inference, and data science workflows.
 
-// Operators for running AI workloads
-include::modules/ai-operators.adoc[leveloffset=+1]
+// Understand AI workload management options (Job 1)
+include::modules/con-understand-ai-workload-management-options.adoc[leveloffset=+1]
 
-[role="_additional-resources"]
-.Additional resources
+// Verify cluster compatibility (Job 2)
+include::modules/con-verify-cluster-compatibility.adoc[leveloffset=+1]
 
-* xref:../ai_workloads/kueue/about-kueue.adoc#about-kueue[Introduction to {kueue-name}]
-* xref:../ai_workloads/leader_worker_set/index.adoc#lws-about[{lws-operator} overview]
-* xref:../ai_workloads/jobset_operator/index.adoc#js-about[{js-operator} overview]
+// Configure RBAC for AI workloads (Job 3)
+include::modules/con-configure-rbac-for-ai-workloads.adoc[leveloffset=+1]
+
+// Install distributed workload operators (Job 6)
+include::modules/con-install-distributed-workload-operators.adoc[leveloffset=+1]
+
+// Configure queues and quotas (Job 7)
+include::modules/con-configure-queues-and-quotas.adoc[leveloffset=+1]
+
+// Enable resource sharing across teams (Job 8)
+include::modules/con-enable-resource-sharing-across-teams.adoc[leveloffset=+1]
+
+// Deploy distributed workloads (Job 10)
+include::modules/con-deploy-distributed-workloads.adoc[leveloffset=+1]
+
+// Submit and manage queued jobs (Job 11)
+include::modules/con-submit-and-manage-queued-jobs.adoc[leveloffset=+1]
+
+// Upgrade Kueue (Job 13)
+include::modules/proc-upgrade-kueue.adoc[leveloffset=+1]
 
 // Exclude this for now until we can get it reviewed by the RHOAI team
 // {rhoai-full}

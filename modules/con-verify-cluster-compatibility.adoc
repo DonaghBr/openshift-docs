@@ -1,0 +1,72 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/index.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="con-verify-cluster-compatibility_{context}"]
+= Verifying cluster compatibility for AI workloads
+
+[role="_abstract"]
+Before you install any AI workload operators, verify that your cluster meets the platform, architecture, and prerequisite requirements. Checking compatibility before installation prevents failed deployments and reduces troubleshooting time.
+
+== Platform requirements
+
+The following table lists platform support for each AI workload operator:
+
+.Platform support by operator
+[cols="1,1,1,1",options="header"]
+|===
+| Platform
+| {kueue-name}
+| {lws-operator}
+| {js-operator}
+
+| {product-title}
+| Supported
+| Supported
+| Technology Preview
+
+| {hcp-capital} for {product-title}
+| Supported
+| Supported
+| Technology Preview
+
+| {ms}
+| Not supported
+| Not supported
+| Not supported
+|===
+
+== Supported architectures
+
+{kueue-name} version 1.1 and later is supported on the following architectures:
+
+* ARM64
+* 64-bit x86
+* ppc64le ({ibm-power-name})
+* s390x ({ibm-z-name})
+
+// TODO: Review — confirm LWS and JobSet architecture support with engineering
+
+== Operator prerequisites
+
+Before installing AI workload operators, ensure the following prerequisites are met:
+
+{cert-manager-operator}::
+Required for {kueue-name} and the {lws-operator}. The {cert-manager-operator} configures services and manages metrics collection. Install the {cert-manager-operator} before installing either operator.
+
+// TODO: Review — confirm whether JobSet requires cert-manager
+
+== Pre-flight checklist
+
+Complete the following checks before proceeding to installation:
+
+. Confirm your cluster runs a supported version of {product-title}.
+. Confirm your cluster architecture is supported (ARM64, x86, ppc64le, or s390x).
+. Confirm your platform type is {product-title} or {hcp-capital} (not {ms}).
+. Install the {cert-manager-operator} if you plan to use {kueue-name} or the {lws-operator}.
+
+[role="_additional-resources"]
+.Additional resources
+
+* xref:../../security/cert_manager_operator/cert-manager-operator-install.adoc#installing-the-cert-manager-operator-for-red-hat-openshift[Installing the {cert-manager-operator}]
