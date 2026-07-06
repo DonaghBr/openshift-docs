@@ -1,0 +1,98 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/agent-discoverability-reference.adoc
+
+:_mod-docs-content-type: REFERENCE
+[id="evalhub-agent-invocable-operations-reference_{context}"]
+= Agent-invocable evaluation operations reference
+
+[role="_abstract"]
+{evalhub} evaluation operations are available through three interaction surfaces: the {evalhub-skills-plugin}, the {evalhub-mcp-server}, and the Python SDK or CLI.
+Use this reference to look up the equivalent operation across surfaces.
+
+== Cross-surface operations mapping
+
+The following table maps each evaluation operation to its equivalent across the three interaction surfaces.
+
+.Cross-surface evaluation operations
+[cols="2,2,2,2", options="header"]
+|===
+|Operation
+|Agent skills (plugin)
+|MCP (server)
+|SDK / CLI
+
+|List providers
+|`evalhub-discovery list-providers`
+|Resource: `evalhub://providers`
+|`client.providers.list()` / `evalhub providers list`
+
+|Get provider details
+|`evalhub-discovery get-provider`
+|Resource: `evalhub://providers/\{id}`
+|`client.providers.get(id)` / `evalhub providers describe <id>`
+
+|List benchmarks
+|`evalhub-discovery list-benchmarks`
+|Resource: `evalhub://benchmarks`
+|`client.benchmarks.list()` / `evalhub benchmarks list`
+
+|List collections
+|`evalhub-discovery list-collections`
+|Resource: `evalhub://collections`
+|`client.collections.list()` / `evalhub collections list`
+
+|Describe collection
+|`evalhub-discovery get-collection`
+|Resource: `evalhub://collections/\{id}`
+|`client.collections.get(id)` / `evalhub collections describe <id>`
+
+|Submit evaluation
+|`evalhub-eval submit`
+|Tool: `submit_evaluation`
+|`client.evaluations.create(...)` / `evalhub eval run`
+
+|Get job status
+|`evalhub-jobs status`
+|Tool: `get_job_status`
+|`client.jobs.get(id)` / `evalhub jobs status <id>`
+
+|Cancel job
+|`evalhub-jobs cancel`
+|Tool: `cancel_job`
+|`client.jobs.cancel(id)` / `evalhub jobs cancel <id>`
+
+|Get results
+|`evalhub-jobs results`
+|Resource: `evalhub://jobs/\{id}`
+|`client.jobs.results(id)` / `evalhub jobs results <id>`
+
+|Compare runs
+|`evalhub-jobs compare`
+|Resource: `evalhub://experiments/\{id}`
+|`client.experiments.compare(...)` / `evalhub experiments compare`
+
+|Wait for job
+|`evalhub-jobs wait`
+|Not available (polling)
+|`client.jobs.wait(id)` / `evalhub jobs wait <id>`
+
+|Get job logs
+|`evalhub-jobs logs`
+|Not available
+|`client.jobs.logs(id)` / `evalhub jobs logs <id>`
+|===
+
+== Result score format
+
+All surfaces return evaluation results in the same format:
+
+Per-benchmark scores:: Individual scores for each benchmark in the evaluation.
+Scores are typically floating point values.
+The scale and interpretation depend on the benchmark.
+For benchmarks with agent metadata, the `result_interpretation` and `score_ranges` fields provide context.
+
+Weighted aggregate:: A single score computed from individual benchmark scores weighted by the collection's benchmark weights.
+This provides a summary metric for the evaluation.
+
+Pass or fail status:: Boolean pass or fail for each benchmark (compared against the benchmark's threshold) and for the collection overall (compared against the collection's aggregate threshold).

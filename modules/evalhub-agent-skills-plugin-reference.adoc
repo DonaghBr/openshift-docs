@@ -1,0 +1,89 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/setting-up-agent-discoverable-evaluations.adoc
+
+:_mod-docs-content-type: REFERENCE
+[id="evalhub-agent-skills-plugin-reference_{context}"]
+= Agent skills plugin environment variables and skills reference
+
+[role="_abstract"]
+You can configure the {evalhub-skills-plugin} by setting environment variables and using the available skills to interact with {evalhub}.
+Use this reference to look up configuration options and skill capabilities.
+
+== Environment variables
+
+The following environment variables configure the {evalhub-skills-plugin}.
+
+.{evalhub-skills-plugin} environment variables
+[cols="2,1,3", options="header"]
+|===
+|Variable
+|Required
+|Description
+
+|`EVALHUB_BASE_URL`
+|Yes
+|The URL of your {evalhub} instance.
+For example, `\https://evalhub.apps.example.com`.
+
+|`EVALHUB_TOKEN`
+|Yes
+|The authentication token for {evalhub} API access.
+Obtain this from your {product-title} cluster.
+
+|`EVALHUB_TENANT`
+|Yes
+|The tenant namespace where evaluations run.
+This determines which {evalhub} tenant receives your evaluation submissions.
+
+|`EVALHUB_INSECURE`
+|No
+|Set to `true` to skip TLS certificate verification.
+Use this when your {evalhub} instance uses self-signed certificates.
+Defaults to `false`.
+
+|`EVALHUB_MCP_URL`
+|No
+|The {evalhub-mcp-server} endpoint URL.
+When set, the plugin delegates operations to the MCP server instead of running scripts directly.
+For example, `\http://localhost:8080`.
+|===
+
+== Skills summary
+
+The following table describes each skill in the {evalhub-skills-plugin} and when agents activate it.
+
+.{evalhub-skills-plugin} skills
+[cols="2,2,3", options="header"]
+|===
+|Skill name
+|Agent routing triggers
+|Description
+
+|`evalhub`
+|"evaluate", "evaluation", "evalhub", "benchmark"
+|Monolithic skill providing backward-compatible access to all {evalhub} capabilities.
+Agents use this skill when granular routing is not available.
+
+|`evalhub-discovery`
+|"list providers", "list benchmarks", "list collections", "what evaluations", "discover", "recommend"
+|Lists evaluation providers, benchmarks, and collections.
+Reads agent discoverability metadata to provide context-aware recommendations.
+
+|`evalhub-eval`
+|"run evaluation", "execute evaluation", "submit evaluation", "evaluate model"
+|Submits evaluations to {evalhub}.
+Supports the `--dry-run` flag to preview what would be submitted without running the evaluation.
+
+|`evalhub-jobs`
+|"job status", "check evaluation", "wait for", "cancel job", "get logs", "results"
+|Manages evaluation job lifecycle.
+Supports status polling, waiting for completion, cancellation, and log retrieval.
+|===
+
+== Dry-run flag
+
+You can use the `--dry-run` flag with the `evalhub-eval` skill to preview an evaluation submission without executing it.
+This is useful for verifying evaluation parameters before committing resources.
+
+When you ask your agent to do a dry run, the agent calls the `evalhub-eval` skill with the `--dry-run` flag and returns the evaluation configuration that would be submitted.

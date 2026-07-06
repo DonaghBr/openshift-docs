@@ -1,0 +1,73 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/evaluating-ai-models-through-agent-interaction.adoc
+
+:_mod-docs-content-type: PROCEDURE
+[id="evalhub-transitioning-from-rest-api_{context}"]
+= Move from the EvalHub REST API to agent-based evaluations
+
+[role="_abstract"]
+If you currently use the {evalhub} REST API to manage evaluations, you can move to agent-based evaluations for a more streamlined workflow.
+You can map your existing REST API operations to agent-driven equivalents and run your first agent-based evaluation.
+
+.Prerequisites
+
+* You are familiar with the {evalhub} REST API.
+* The {evalhub-skills-plugin} or the {evalhub-mcp-server} is installed and configured.
+
+.Procedure
+
+. Review the mapping between REST API operations and agent-driven equivalents:
++
+.REST API to agent-driven operations mapping
+[cols="2,2,2", options="header"]
+|===
+|REST API operation
+|Agent skills equivalent
+|What changes
+
+|`GET /api/v1/evaluations/providers`
+|"List available providers"
+|Discovery is automatic.
+The agent reads provider metadata and can explain what each provider evaluates.
+
+|`GET /api/v1/evaluations/providers/\{id}`
+|"Tell me about the lm-evaluation-harness provider"
+|Parameters can be natural language instead of path parameters.
+
+|`POST /api/v1/evaluations/jobs`
+|"Run an evaluation against my model"
+|The agent constructs the request from natural language.
+You do not need to format JSON payloads.
+
+|`GET /api/v1/evaluations/jobs/*` and `GET /api/v1/evaluations/jobs/*/events`
+|"What is the status of my evaluation?"
+|The agent polls automatically and reports progress.
+The API provides two separate endpoints: the job status endpoint for current state and the `/events` sub-path for streaming job lifecycle events.
+
+|`GET /api/v1/evaluations/collections`
+|"List evaluation collections"
+|Same data, conversational access.
+
+|`GET /api/v1/evaluations/collections/\{id}`
+|"Describe the safety-and-fairness-v1 collection"
+|The agent presents the collection structure with benchmarks, weights, and thresholds.
+|===
+
+. Install the {evalhub-skills-plugin} or the {evalhub-mcp-server} by following the installation procedures for your preferred tool.
+
+. Run your first agent-based evaluation by describing what you want to evaluate in natural language:
++
+----
+Run a lm-evaluation-harness evaluation with the mmlu benchmark against my model.
+----
+
+. Compare the experience with your previous REST API workflow:
++
+* *Discovery*: The agent recommends frameworks based on context, rather than requiring you to know provider names in advance.
+* *Parameters*: You describe the evaluation in natural language, rather than constructing JSON request bodies.
+* *Results*: The agent presents results with interpretation, rather than returning raw JSON that you parse manually.
+* *Iteration*: The agent tracks previous runs and enables comparison, rather than requiring you to query the MLflow API separately.
++
+The underlying evaluation engine, provider configuration, and result format remain the same.
+Agent-based evaluations are a new interaction layer on top of the existing {evalhub} infrastructure.

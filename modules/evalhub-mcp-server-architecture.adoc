@@ -1,0 +1,73 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/setting-up-agent-discoverable-evaluations.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="evalhub-mcp-server-architecture_{context}"]
+= EvalHub MCP server architecture and metadata bridge
+
+[role="_abstract"]
+The {evalhub-mcp-server} bridges agent discoverability metadata and the Model Context Protocol (MCP) to expose {evalhub} capabilities to MCP-compatible AI coding agents.
+Understanding how the MCP server maps metadata to MCP primitives helps you configure and troubleshoot agent integrations.
+
+[IMPORTANT]
+====
+The {evalhub-mcp-server} is Developer Preview.
+Features and interfaces are subject to change in future releases.
+====
+
+== Metadata-to-MCP mapping
+
+The {evalhub-mcp-server} translates agent discoverability metadata from provider configurations into MCP primitives that agents can consume.
+The following mapping describes how each metadata field surfaces through MCP:
+
+Provider summary:: Becomes the MCP tool description, giving the agent a concise explanation of what the provider evaluates.
+
+Hints:: Guide agent parameterization when constructing tool calls.
+For example, a hint might indicate that a specific model argument format is expected.
+
+target_type and evaluates:: Enable intent-based provider filtering.
+The agent can query for providers that evaluate a specific target type (model, agent, or inference server) or capability (for example, "retrieval quality").
+
+result_interpretation and complements:: Drive post-evaluation agent behavior.
+After an evaluation completes, `result_interpretation` tells the agent how to explain the scores.
+The `complements` field tells the agent which other providers would provide additional evaluation coverage.
+
+== MCP primitives
+
+The {evalhub-mcp-server} exposes three types of MCP primitives:
+
+Tools:: Actions that the agent can call, such as submitting an evaluation, canceling a job, or checking job status.
+Tools are the primary interaction mechanism for executing operations against {evalhub}.
+
+Resources:: Data that the agent can browse, such as provider listings, benchmark catalogs, collection definitions, job details, experiment results, and server version information.
+Resources use URI patterns (for example, `evalhub://providers`, `evalhub://benchmarks`) for structured access.
+
+Prompts:: Guided workflow templates that structure multi-step agent interactions.
+For example, the `edd_workflow` prompt guides the agent through the full evaluation-driven development cycle, and the `evaluate_model` prompt helps the agent construct a well-formed evaluation request.
+
+== Transport modes
+
+The {evalhub-mcp-server} supports two transport modes:
+
+stdio:: For local agent connections.
+The MCP server runs as a subprocess of the agent, communicating over standard input and output.
+This mode requires no network configuration and is appropriate for single-user development workflows.
+
+HTTP or SSE:: For remote or shared connections.
+The MCP server runs as a standalone process or container, accepting connections over HTTP with Server-Sent Events (SSE) for streaming.
+This mode supports multiple concurrent agent connections and is appropriate for shared development environments.
+
+When deployed through the operator, the transport mode is configured on the {evalhub} custom resource through the `spec.mcp.transport` field, which accepts `http` (default) or `http-sse`.
+The `stdio` mode is only available when running the MCP server binary standalone (not through the operator).
+
+== Relationship to the agent skills plugin
+
+The {evalhub-mcp-server} and the {evalhub-skills-plugin} are complementary discovery surfaces.
+They expose the same underlying {evalhub} capabilities through different mechanisms:
+
+* The {evalhub-skills-plugin} uses file-system-based discovery and runs Python scripts locally.
+* The {evalhub-mcp-server} uses protocol-based discovery and runs as a Go binary.
+
+You can use either or both depending on your agent platform and deployment preferences.
+The {evalhub-skills-plugin} can also operate in MCP mode, delegating to the {evalhub-mcp-server} when the `EVALHUB_MCP_URL` environment variable is set.

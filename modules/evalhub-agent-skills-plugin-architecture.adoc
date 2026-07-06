@@ -1,0 +1,66 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/setting-up-agent-discoverable-evaluations.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="evalhub-agent-skills-plugin-architecture_{context}"]
+= EvalHub agent skills plugin architecture
+
+[role="_abstract"]
+The {evalhub-skills-plugin} provides file-system-based discovery of {evalhub} evaluation capabilities for AI coding agents.
+Understanding the plugin structure helps you configure it correctly and troubleshoot issues during agent interactions.
+
+== Skill structure
+
+The {evalhub-skills-plugin} contains four skills that map to different phases of the evaluation workflow:
+
+`evalhub`:: A monolithic skill that provides backward compatibility with earlier versions of the plugin.
+This skill combines discovery, evaluation, and job management into a single entry point.
+Agents that do not support granular skill routing use this skill.
+
+`evalhub-discovery`:: Handles provider, benchmark, and collection listing.
+When your agent needs to find available evaluation frameworks or browse benchmark catalogs, it activates this skill.
+This skill reads the agent discoverability metadata from provider configurations to provide context-aware recommendations.
+
+`evalhub-eval`:: Handles evaluation submission.
+When you ask your agent to run an evaluation, it activates this skill to submit the evaluation to {evalhub}.
+The skill supports a `--dry-run` flag that shows what would be submitted without executing the evaluation.
+
+`evalhub-jobs`:: Handles job lifecycle management, including status polling, waiting for completion, cancellation, and log retrieval.
+When your agent needs to check on a running evaluation or retrieve results, it activates this skill.
+
+== Skill activation during agent interaction
+
+During a typical agent interaction, the skills activate in sequence:
+
+. You describe what you want to evaluate.
+The agent activates the `evalhub-discovery` skill to list available providers and recommend a framework based on your application type.
+. You confirm the recommendation or select a specific provider.
+The agent activates the `evalhub-eval` skill to submit the evaluation to {evalhub}.
+. The agent activates the `evalhub-jobs` skill to poll the evaluation job status, wait for completion, and retrieve results.
+
+The agent determines which skill to activate based on the skill descriptions in the `.skillsaw.yaml` metadata file.
+Each skill includes trigger phrases and descriptions that guide the agent's routing decisions.
+
+== State persistence for long-running jobs
+
+Evaluation jobs can run for minutes or hours.
+The plugin uses a state persistence mechanism to track in-flight job IDs across agent context windows.
+If the agent's context is compressed or a new session starts, the `SessionStart` hook recovers the IDs of any running jobs so that you can continue monitoring them.
+
+== Dual operation modes
+
+The {evalhub-skills-plugin} supports two operation modes:
+
+Script mode:: The plugin runs Python scripts locally to communicate with the {evalhub} API.
+This mode requires Python 3.11 or later and `uv` to be installed on your workstation.
+
+MCP mode:: The plugin delegates operations to the {evalhub-mcp-server} instead of running scripts directly.
+This mode requires the MCP server to be running and accessible.
+Set the `EVALHUB_MCP_URL` environment variable to the MCP server endpoint to enable this mode.
+
+== The agentskills.io format
+
+The plugin follows the link:https://agentskills.io/home[agentskills.io] open standard, which defines a file-system-based skill format that agents can discover automatically.
+Each skill directory contains a `SKILL.md` file with a description, trigger phrases, and instructions, along with a `scripts/` directory containing the implementation.
+The `.skillsaw.yaml` file at the plugin root provides metadata for all skills.

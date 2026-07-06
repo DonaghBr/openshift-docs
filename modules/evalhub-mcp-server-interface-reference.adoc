@@ -1,0 +1,162 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/agent-discoverability-reference.adoc
+
+:_mod-docs-content-type: REFERENCE
+[id="evalhub-mcp-server-interface-reference_{context}"]
+= EvalHub MCP server interface reference
+
+[role="_abstract"]
+The {evalhub-mcp-server} exposes {evalhub} capabilities through MCP tools, resources, and prompts.
+Use this reference to look up available interfaces, parameters, and configuration options.
+
+[IMPORTANT]
+====
+The {evalhub-mcp-server} is Developer Preview.
+Interfaces are subject to change in future releases.
+====
+
+== MCP tools
+
+Tools are actions that the agent can call to perform operations against {evalhub}.
+
+.{evalhub-mcp-server} tools
+[cols="2,2,3", options="header"]
+|===
+|Tool name
+|Parameters
+|Description
+
+|`submit_evaluation`
+|`provider` (string, required), `model` (string, required), `model_args` (object, optional), `benchmarks` (list, optional), `collection` (string, optional)
+|Submits an evaluation to {evalhub}.
+You can specify individual benchmarks or a collection name.
+Returns a job ID for tracking.
+
+|`cancel_job`
+|`job_id` (string, required)
+|Cancels a running evaluation job.
+The job transitions to the `Canceled` state.
+
+|`get_job_status`
+|`job_id` (string, required)
+|Returns the current status of an evaluation job, including the lifecycle state, progress information, and any available results.
+|===
+
+== MCP resources
+
+Resources are data endpoints that the agent can browse to discover available evaluation capabilities.
+
+.{evalhub-mcp-server} resources
+[cols="2,3", options="header"]
+|===
+|Resource URI
+|Description
+
+|`evalhub://providers`
+|Lists all available evaluation providers with their agent metadata.
+
+|`evalhub://providers/\{id}`
+|Returns details for a specific provider, including benchmarks and agent metadata.
+
+|`evalhub://benchmarks`
+|Lists all available benchmarks across all providers.
+
+|`evalhub://benchmarks/\{id}`
+|Returns details for a specific benchmark, including agent metadata with score ranges.
+
+|`evalhub://collections`
+|Lists all available evaluation collections with their benchmark groupings and weights.
+
+|`evalhub://collections/\{id}`
+|Returns details for a specific collection, including benchmarks, weights, and pass thresholds.
+
+|`evalhub://jobs/\{id}`
+|Returns the full status and results for a specific evaluation job.
+
+|`evalhub://experiments/\{id}`
+|Returns MLflow experiment results for comparison across evaluation runs.
+
+|`evalhub://version`
+|Returns the {evalhub-mcp-server} version and connected {evalhub} server information.
+|===
+
+== MCP prompts
+
+Prompts are guided workflow templates that structure multi-step agent interactions.
+
+.{evalhub-mcp-server} prompts
+[cols="2,2,3", options="header"]
+|===
+|Prompt name
+|Arguments
+|Description
+
+|`edd_workflow`
+|`application_type` (string, optional), `model` (string, optional)
+|Guides the agent through the full evaluation-driven development cycle: define criteria, measure scores, and iterate.
+If `application_type` is provided, the prompt pre-selects relevant evaluation frameworks.
+
+|`evaluate_model`
+|`model` (string, required), `provider` (string, optional), `benchmarks` (list, optional)
+|Guides the agent through a single evaluation workflow: discover providers, select benchmarks, run the evaluation, and interpret results.
+
+|`compare_runs`
+|`run_ids` (list, required)
+|Guides the agent through comparing results from multiple evaluation runs, highlighting improvements, regressions, and stable dimensions.
+|===
+
+== Configuration options
+
+.{evalhub-mcp-server} configuration options
+[cols="2,2,1,2", options="header"]
+|===
+|Option
+|Environment variable
+|Default
+|Description
+
+|`--url`
+|`EVALHUB_BASE_URL`
+|None (required)
+|The URL of the {evalhub} instance.
+
+|`--token`
+|`EVALHUB_TOKEN`
+|None (required)
+|The authentication token for {evalhub} API access.
+
+|`--tenant`
+|`EVALHUB_TENANT`
+|None (required)
+|The tenant namespace.
+
+|`--transport`
+|N/A
+|`stdio`
+|The transport mode for the standalone binary: `stdio` or `http`.
+
+|`--port`
+|N/A
+|`8080`
+|The port for HTTP mode when running the standalone binary.
+
+|`--host`
+|N/A
+|`localhost`
+|The host address for HTTP mode when running the standalone binary.
+
+|`--insecure`
+|`EVALHUB_INSECURE`
+|`false`
+|Skip TLS certificate verification.
+|===
+
+CLI flags take precedence over environment variables.
+
+[NOTE]
+====
+The defaults listed above apply to the standalone CLI binary.
+When deployed through the operator, the MCP server runs in HTTP mode on port 8445 with `127.0.0.1` as the host, behind a kube-rbac-proxy sidecar.
+The operator CR `spec.mcp.transport` field accepts `http` (default) or `http-sse`, and does not support `stdio`.
+====

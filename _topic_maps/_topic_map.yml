@@ -3486,6 +3486,16 @@ Topics:
     File: managing-jobset
   - Name: Uninstalling the JobSet Operator
     File: jobset-uninstall
+- Name: EvalHub agent-discoverable evaluations
+  Dir: evalhub
+  Distros: openshift-enterprise
+  Topics:
+  - Name: Set up agent-discoverable evaluations
+    File: setting-up-agent-discoverable-evaluations
+  - Name: Evaluate AI models through agent interaction
+    File: evaluating-ai-models-through-agent-interaction
+  - Name: Agent discoverability API and schema reference
+    File: agent-discoverability-reference
 ---
 Name: Edge computing
 Dir: edge_computing

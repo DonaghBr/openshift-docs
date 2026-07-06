@@ -1,0 +1,215 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/agent-discoverability-reference.adoc
+
+:_mod-docs-content-type: REFERENCE
+[id="evalhub-agent-discoverability-metadata-schema_{context}"]
+= Agent discoverability metadata schema reference
+
+[role="_abstract"]
+The agent discoverability metadata schema defines the fields that {evalhub} providers and benchmarks use to communicate with AI coding agents.
+Use this reference to look up field types, constraints, and semantics when authoring or consuming agent metadata.
+
+== `AgentMetadata` object
+
+The `AgentMetadata` object is an optional field on provider configurations.
+It describes the provider's capabilities to AI coding agents.
+
+.AgentMetadata fields
+[cols="2,1,1,3", options="header"]
+|===
+|Field
+|Type
+|Required
+|Description
+
+|`evaluates`
+|`[]string`
+|No
+|What the provider can evaluate.
+For example, `["retrieval quality", "answer faithfulness", "context precision"]`.
+Agents use this field to filter providers by evaluation capability.
+
+|`recommended_when`
+|`[]string`
+|No
+|A list of natural language descriptions of when to recommend this provider.
+For example, `["User is building or evaluating a RAG pipeline", "User asks about faithfulness or context precision"]`.
+Agents match these descriptions against the user's stated intent.
+
+|`target_type`
+|`enum`
+|No
+|The type of target this provider evaluates.
+Valid values: `model`, `agent`, `inference_server`.
+
+|`summary`
+|`string`
+|No
+|A concise description of the provider for agent display (recommended maximum of 200 characters).
+For example, `"Evaluates RAG pipeline quality using faithfulness, precision, and relevance metrics"`.
+
+|`complements`
+|`[]string`
+|No
+|IDs of complementary providers.
+Agents use this field to suggest additional evaluation coverage after one provider's results are available.
+
+|`hints`
+|`[]string`
+|No
+|Usage hints for agents.
+For example, `["The model name must be a valid HuggingFace model ID", "For gated models, the cluster needs a HF_TOKEN secret"]`.
+Agents use this field when constructing evaluation requests.
+
+|`result_interpretation`
+|`[]string`
+|No
+|How to interpret results from this provider.
+For example, `["Most benchmarks use accuracy (acc or acc_norm), higher is better", "0.25 is random baseline for 4-choice MCQ benchmarks"]`.
+Agents use this field to explain evaluation scores to the user.
+|===
+
+All fields are optional.
+When a field is absent from the YAML configuration, agents fall back to default behavior without the guidance that the field would provide.
+
+== `BenchmarkAgentMetadata` object
+
+The `BenchmarkAgentMetadata` object is an optional field on benchmark resources.
+It describes how to interpret scores for a specific benchmark.
+
+.BenchmarkAgentMetadata fields
+[cols="2,1,1,3", options="header"]
+|===
+|Field
+|Type
+|Required
+|Description
+
+|`result_interpretation`
+|`string`
+|No
+|How to interpret results for this specific benchmark.
+For example, `"Measures accuracy across 57 academic subjects.
+Higher scores indicate broader knowledge."`.
+
+|`score_ranges`
+|`[]ScoreRange`
+|No
+|Maps score values to qualitative meanings.
+See the ScoreRange object definition.
+|===
+
+== `ScoreRange` object
+
+The `ScoreRange` object maps a score range to a qualitative meaning.
+
+.ScoreRange fields
+[cols="2,1,1,3", options="header"]
+|===
+|Field
+|Type
+|Required
+|Description
+
+|`range`
+|`string`
+|Recommended
+|The score range.
+For example, `"0.0 - 0.25"`, `"0.25 - 0.5"`, `"0.7 - 1.0"`.
+These fields are expected by agents and should always be provided, though no server-side validation currently enforces their presence.
+
+|`meaning`
+|`string`
+|Recommended
+|What the score range means.
+For example, `"Random chance"`, `"Below average"`, `"Expert level"`.
+These fields are expected by agents and should always be provided, though no server-side validation currently enforces their presence.
+|===
+
+== YAML example
+
+The following example shows a provider configuration with both provider-level and per-benchmark agent metadata.
+This is a simplified excerpt from the `lm_evaluation_harness` provider configuration:
+
+[source,yaml]
+----
+name: LM Evaluation Harness
+id: lm_evaluation_harness
+description: >
+  Comprehensive evaluation framework for language models with 188 benchmarks
+agent:
+  evaluates:
+    - accuracy
+    - reasoning
+    - knowledge
+    - math
+    - science
+    - safety
+    - multilingual
+    - code
+    # ... plus 7 additional categories (medical, logic_reasoning,
+    # language_modeling, reading_comprehension, instruction_following,
+    # long_context, general)
+  recommended_when:
+    - "User wants to measure model accuracy or reasoning ability"
+    - "User asks about MMLU, HellaSwag, ARC, or standard benchmarks"
+    - "User needs a broad capability assessment"
+    - "Leaderboard-style evaluation"
+  target_type: model
+  summary: "Evaluate LLM accuracy across 188 benchmarks (reasoning, knowledge, math, safety)"
+  complements:
+    - garak
+    - guidellm
+  hints:
+    - "The model name must be a valid HuggingFace model ID (e.g. TinyLlama/TinyLlama-1.1B-Chat-v1.0)"
+    - "For gated models, the cluster needs a HF_TOKEN secret"
+    - "num_examples limits dataset size for faster iteration but may reduce score reliability"
+  result_interpretation:
+    - "Most benchmarks use accuracy (acc or acc_norm), higher is better"
+    - "0.25 is random baseline for 4-choice MCQ benchmarks"
+    - "acc_norm is generally more reliable than raw acc for multiple-choice"
+benchmarks:
+  - id: mmlu
+    agent:
+      result_interpretation: >-
+        Measures knowledge across 57 academic subjects.
+        Higher scores indicate broader knowledge coverage.
+      score_ranges:
+        - range: "0.0 - 0.25"
+          meaning: Random chance
+        - range: "0.25 - 0.5"
+          meaning: Below average
+        - range: "0.5 - 0.7"
+          meaning: Good
+        - range: "0.7 - 1.0"
+          meaning: Expert level
+  - id: arc_challenge
+    agent:
+      result_interpretation: >-
+        Measures scientific reasoning. Based on grade-school
+        science questions.
+      score_ranges:
+        - range: "0.0 - 0.3"
+          meaning: Poor
+        - range: "0.3 - 0.6"
+          meaning: Average
+        - range: "0.6 - 1.0"
+          meaning: Strong
+----
+
+[NOTE]
+====
+This example is a simplified excerpt from the actual `lm_evaluation_harness` provider configuration.
+The actual configuration contains 188 benchmark entries.
+Refer to the provider configuration files in the operator repository for the complete list of benchmarks and their metadata.
+====
+
+== API endpoints returning agent metadata
+
+The following API endpoints include the agent metadata block in their responses:
+
+* `GET /api/v1/evaluations/providers` -- Returns a list of all providers.
+Each provider object includes the optional `agent` field.
+* `GET /api/v1/evaluations/providers/\{id}` -- Returns a single provider with benchmarks.
+Both the provider object and individual benchmark objects include the optional `agent` field.

@@ -1,0 +1,98 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/agent-discoverability-reference.adoc
+
+:_mod-docs-content-type: REFERENCE
+[id="evalhub-capability-to-provider-decision-matrix_{context}"]
+= AI capability-to-provider decision matrix
+
+[role="_abstract"]
+Use this decision matrix to determine which {evalhub} evaluation provider is appropriate for your AI application type.
+This matrix is the canonical source for capability-to-provider mappings and is encoded in the agent discoverability metadata that guides agent recommendations.
+
+== Decision matrix
+
+.AI capability-to-provider recommendations
+[cols="2,2,2,2", options="header"]
+|===
+|AI capability
+|Recommended provider
+|Key metrics
+|Representative benchmarks
+
+|RAG retrieval quality
+|RAGAS (planned)
+|context_precision, context_recall
+|Context precision, context recall
+
+|RAG answer faithfulness
+|RAGAS (planned)
+|faithfulness, answer_relevance
+|Faithfulness, answer relevance
+
+|Toxicity and bias detection
+|Garak
+|Probe pass or fail rates
+|Toxicity probes, adversarial testing
+
+|Multi-turn agentic interactions
+|lm-evaluation-harness
+|Turn accuracy, context retention
+|Multi-turn benchmarks
+
+|Tool-calling accuracy
+|lm-evaluation-harness
+|Tool selection accuracy, parameter accuracy
+|Tool-calling benchmarks
+
+|General reasoning
+|lm-evaluation-harness
+|Accuracy
+|MMLU, ARC Challenge, HellaSwag
+
+|Coding
+|lm-evaluation-harness
+|Pass rate
+|HumanEval, MBPP
+
+|Latency and throughput
+|GuideLLM
+|Requests per second, p50/p95/p99 latency
+|Inference throughput benchmarks
+
+|Embedding quality
+|MTEB (planned)
+|Retrieval accuracy, clustering quality
+|MTEB evaluation suite
+
+|Fast capability checks
+|LightEval
+|Accuracy
+|Lightweight benchmark subsets
+|===
+
+== Using the decision matrix
+
+When your AI coding agent recommends an evaluation framework, it uses the mappings in this matrix as guidance.
+For lm-evaluation-harness, the agent reads the `evaluates`, `recommended_when`, and `target_type` fields from provider metadata, which encode these mappings.
+For other providers, the agent relies on static skill descriptions rather than API metadata.
+
+[NOTE]
+====
+Entries marked "(planned)" indicate providers that are not yet included in the default {evalhub} installation.
+The recommendations shown for these providers represent the expected workflow when they become available.
+====
+
+If you need to evaluate multiple capabilities, select providers for each capability.
+The `complements` field in provider metadata indicates which providers work well together.
+For example, after running lm-evaluation-harness for reasoning benchmarks, the agent might suggest Garak for safety evaluation and GuideLLM for performance benchmarking.
+
+== Multi-provider evaluation strategy
+
+For comprehensive model evaluation, consider combining providers across multiple dimensions:
+
+Quality evaluation:: Use lm-evaluation-harness for reasoning and knowledge. When RAGAS becomes available, use it for RAG-specific quality.
+Safety evaluation:: Use Garak for toxicity and adversarial robustness.
+Performance evaluation:: Use GuideLLM for latency and throughput under production-like conditions.
+
+You can group these into an {evalhub} evaluation collection that runs all benchmarks in a single operation, with weights and thresholds that reflect your quality priorities.

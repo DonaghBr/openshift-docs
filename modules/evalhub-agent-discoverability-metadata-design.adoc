@@ -1,0 +1,57 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/agent-discoverability-reference.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="evalhub-agent-discoverability-metadata-design_{context}"]
+= Agent discoverability metadata design
+
+[role="_abstract"]
+Agent discoverability metadata in {evalhub} follows a two-tier design that separates provider-level and benchmark-level information.
+Understanding this design helps you interpret metadata correctly and author custom provider configurations with agent metadata.
+
+== Two-tier metadata model
+
+Agent discoverability metadata is organized into two tiers:
+
+Provider-level metadata (`AgentMetadata`):: Describes what the provider evaluates as a whole, when to recommend it, and which other providers complement it.
+This metadata helps agents decide which provider to suggest based on the user's application type.
++
+For example, a RAG-focused provider's metadata might include `evaluates: ["retrieval quality", "answer faithfulness"]` and `recommended_when: "User is building or evaluating a RAG pipeline"`.
+Currently, only the lm-evaluation-harness provider includes agent metadata.
+
+Benchmark-level metadata (`BenchmarkAgentMetadata`):: Describes how to interpret the scores for a specific benchmark and maps score values to qualitative meanings.
+This metadata helps agents explain evaluation results to the user after an evaluation completes.
++
+For example, the MMLU benchmark's metadata includes `result_interpretation: "Measures knowledge across 57 academic subjects"` and score ranges mapping 0.0-0.25 to "Random chance" and 0.7-1.0 to "Expert level".
+
+The two tiers serve different purposes in the agent interaction cycle: provider-level metadata drives the *discovery and recommendation* phase, while benchmark-level metadata drives the *result interpretation* phase.
+
+== Why flat strings over nested objects
+
+The agent discoverability metadata schema uses flat fields (strings and string lists) rather than nested or structured objects.
+This design decision optimizes the metadata for LLM consumption.
+
+LLMs process natural language descriptions more effectively than deeply nested JSON structures.
+A flat `recommended_when` list (for example, `["User wants to measure model accuracy or reasoning ability", "User asks about MMLU, HellaSwag, ARC, or standard benchmarks"]`) gives the agent directly usable descriptions that it can match against the user's stated intent.
+Nested structures would require the agent to traverse and interpret a hierarchy, which adds complexity without improving the quality of recommendations.
+
+== Why score_ranges are benchmark-only
+
+Score ranges are defined only at the benchmark level, not at the provider level.
+This is because providers evaluate many different benchmarks, each with its own scoring scale and interpretation.
+
+For example, lm-evaluation-harness evaluates 188 benchmarks.
+Some benchmarks produce accuracy scores from 0.0 to 1.0, while others produce perplexity scores where lower values are better.
+Defining score ranges at the provider level would not be meaningful because a single set of ranges cannot describe the scoring semantics of all benchmarks within that provider.
+
+== Optional metadata
+
+Agent metadata is optional.
+The {evalhub} API supports modification operations (GET, PUT, PATCH, DELETE) on the `/api/v1/evaluations/providers/*` endpoint, including the `agent` block.
+However, the recommended practice is to author metadata as part of the provider configuration rather than modifying it at runtime through API calls.
+
+Agents consume this metadata to make recommendations but do not modify it.
+
+If you need to customize the agent metadata for a provider, create a custom provider configuration with your own `agent` block.
+For details on the YAML structure and field constraints, see xref:evalhub-custom-evaluation-templates_{context}[Custom evaluation templates and provider metadata reference].

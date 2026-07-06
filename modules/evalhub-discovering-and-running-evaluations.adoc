@@ -1,0 +1,121 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/evaluating-ai-models-through-agent-interaction.adoc
+
+:_mod-docs-content-type: PROCEDURE
+[id="evalhub-discovering-and-running-evaluations_{context}"]
+= Discover and run evaluations through AI agent interaction
+
+[role="_abstract"]
+You can discover evaluation frameworks, receive recommendations, run evaluations, and retrieve results by interacting with your AI coding agent in natural language.
+The core evaluation workflow applies across all supported interaction surfaces.
+
+.Prerequisites
+
+* The {evalhub-skills-plugin} or the {evalhub-mcp-server} is installed and configured.
+* Your {evalhub} instance is deployed and accessible.
+* The required environment variables (`EVALHUB_BASE_URL`, `EVALHUB_TOKEN`, `EVALHUB_TENANT`) are set.
+
+.Procedure
+
+. Discover available evaluation providers by asking your agent to list them:
++
+----
+What evaluation providers are available in EvalHub?
+----
++
+The agent queries {evalhub} and returns a list of available providers with descriptions of what each one evaluates.
+If provider metadata includes `recommended_when` fields, the agent can also explain when each provider is most appropriate.
+
+. Receive a framework recommendation by describing your application:
++
+----
+I am building a RAG pipeline for customer support. What evaluations should I run?
+----
++
+The agent reads the agent discoverability metadata and recommends evaluation providers based on your application type.
+For lm-evaluation-harness, these recommendations are driven by API metadata.
+For other providers, recommendations rely on static skill descriptions.
++
+[NOTE]
+====
+RAGAS is a planned provider for RAG pipeline quality evaluation.
+Until RAGAS is available, use lm-evaluation-harness benchmarks for general model quality assessment.
+====
++
+If the agent's recommendation does not match your needs, you can override it:
++
+----
+I want to run lm-evaluation-harness benchmarks for general reasoning instead.
+----
+
+. Execute an evaluation by asking the agent to run it:
++
+----
+Run an lm-evaluation-harness evaluation against my model using the mmlu and arc_challenge benchmarks.
+----
++
+The agent submits the evaluation to {evalhub}, creates an evaluation job, and begins monitoring its progress.
++
+To preview the evaluation configuration before submitting, ask for a dry run:
++
+----
+Do a dry run of this evaluation first.
+----
+
+. Monitor the evaluation progress:
++
+The agent automatically polls the job status and reports progress.
+For long-running evaluations, you can ask for a status update:
++
+----
+What is the status of my evaluation?
+----
++
+The agent reports the current job state (New, Scheduled, Running, Complete, Canceled, or Suspended) and any available progress information.
+
+. Retrieve evaluation results when the job completes:
++
+----
+Show me the evaluation results.
+----
++
+The agent presents per-benchmark scores, weighted aggregate scores, and pass or fail status.
+For benchmarks with agent metadata, the agent explains what each score means.
+
+. Compare results across runs to track improvements:
++
+----
+Compare my latest evaluation results with the previous run.
+----
++
+The agent retrieves results from MLflow experiments and presents a comparison showing score changes, regressions, and improvements across benchmarks.
+
+. Optionally, discover and run domain-specific evaluation collections:
++
+----
+List the available evaluation collections.
+----
++
+Collections group benchmarks by domain (for example, `safety-and-fairness-v1`, `leaderboard-v2`).
+Running a collection evaluates multiple benchmarks in a single operation:
++
+----
+Run the safety-and-fairness-v1 collection against my model.
+----
+
+. Cancel a running evaluation if needed:
++
+----
+Cancel the currently running evaluation job.
+----
+
+.Verification
+
+* After an evaluation completes, verify that the results are available in MLflow by asking:
++
+----
+Show me the MLflow experiment for this evaluation.
+----
+
+* Verify that the evaluation ran the expected benchmarks by reviewing the per-benchmark score breakdown in the results.

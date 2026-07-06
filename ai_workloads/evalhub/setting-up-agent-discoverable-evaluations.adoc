@@ -1,0 +1,28 @@
+:_mod-docs-content-type: ASSEMBLY
+include::_attributes/common-attributes.adoc[]
+[id="setting-up-agent-discoverable-evaluations"]
+= Set up agent-discoverable evaluations
+:context: setting-up-agent-discoverable-evaluations
+
+toc::[]
+
+[role="_abstract"]
+You can configure your AI coding agent to discover and run {evalhub} model evaluations during development.
+Agent-discoverable evaluations remove the need to switch between coding and evaluation tools, making systematic evaluation as accessible as writing a prompt.
+
+{evalhub} provides two discovery surfaces: the {evalhub-skills-plugin} for agents with file-system access such as Claude Code, and the {evalhub-mcp-server} for agents supporting the Model Context Protocol (MCP).
+Choose the installation path that matches your agent platform.
+
+include::modules/evalhub-agent-discoverable-evaluations-overview.adoc[leveloffset=+1]
+
+include::modules/evalhub-supported-agents-and-frameworks.adoc[leveloffset=+1]
+
+include::modules/evalhub-agent-skills-plugin-architecture.adoc[leveloffset=+1]
+
+include::modules/evalhub-installing-agent-skills-plugin.adoc[leveloffset=+1]
+
+include::modules/evalhub-agent-skills-plugin-reference.adoc[leveloffset=+1]
+
+include::modules/evalhub-mcp-server-architecture.adoc[leveloffset=+1]
+
+include::modules/evalhub-installing-mcp-server.adoc[leveloffset=+1]

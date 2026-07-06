@@ -1,0 +1,101 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/setting-up-agent-discoverable-evaluations.adoc
+
+:_mod-docs-content-type: PROCEDURE
+[id="evalhub-installing-agent-skills-plugin_{context}"]
+= Install and configure the eval-hub agent skills plugin
+
+[role="_abstract"]
+You can install the {evalhub-skills-plugin} to enable your AI coding agent to discover and run {evalhub} model evaluations.
+The plugin supports multiple installation methods depending on your development workflow.
+
+.Prerequisites
+
+* Python 3.11 or later is installed.
+* The `uv` package manager is installed.
+* Network access to your {evalhub} instance is available.
+* A valid {product-title} authentication token is available.
+* Your {evalhub} instance is deployed and accessible.
+
+.Procedure
+
+. Install the {evalhub-skills-plugin} by using one of the following methods:
++
+--
+** *Claude Code plugin marketplace* (recommended for Claude Code users):
++
+[source,terminal]
+----
+$ claude plugin install eval-hub-skills
+----
+
+** *Local clone for development*:
++
+[source,terminal]
+----
+$ git clone https://github.com/eval-hub/eval-hub-skills.git
+$ cd eval-hub-skills
+$ make install-all
+----
+
+** *MCP server registration* for cluster-connected workflows:
++
+In the following command, replace `<evalhub_url>` with the URL of your {evalhub} instance, `<token>` with your authentication token, and `<tenant>` with your tenant namespace:
++
+[source,terminal]
+----
+$ claude mcp add evalhub -- evalhub-mcp --url <evalhub_url> --token <token> --tenant <tenant>
+----
+--
+
+. Set the required environment variables.
+You can set these in your shell profile or in a `.env` file in your project directory:
++
+[source,terminal]
+----
+$ export EVALHUB_BASE_URL=<evalhub_server_url>
+$ export EVALHUB_TOKEN=<authentication_token>
+$ export EVALHUB_TENANT=<tenant_namespace>
+----
++
+Where:
++
+--
+`<evalhub_server_url>`:: The URL of your {evalhub} instance, for example `\https://evalhub.apps.example.com`.
+`<authentication_token>`:: Your {product-title} authentication token for {evalhub} API access.
+`<tenant_namespace>`:: The namespace where your evaluations run.
+--
+
+. Optional: If your {evalhub} instance uses self-signed certificates, set the following environment variable:
++
+[source,terminal]
+----
+$ export EVALHUB_INSECURE=true
+----
+
+.Verification
+
+. Start a new agent session and verify that the evaluation skills are available.
+For Claude Code, the skills appear in the skill list when you start a session in a directory containing the plugin.
+
+. Test provider discovery by asking your agent to list available evaluation providers:
++
+----
+List the available evaluation providers in EvalHub.
+----
++
+The agent should return a list of providers, such as `lm-evaluation-harness`, `garak`, and `guidellm`.
+
+.Troubleshooting
+
+If the agent cannot connect to {evalhub}, verify the following:
+
+* The `EVALHUB_BASE_URL` environment variable is set correctly and the URL is reachable.
+* The `EVALHUB_TOKEN` has not expired.
+Tokens typically expire after a set period.
+Request a new token if needed.
+* If you receive TLS certificate errors, set `EVALHUB_INSECURE=true` for self-signed certificates.
+
+For GitHub Copilot and Codex CLI, copy the skill directories to the agent's skill search path.
+Consult your agent's documentation for the correct directory location.

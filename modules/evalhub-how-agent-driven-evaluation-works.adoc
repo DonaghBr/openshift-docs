@@ -1,0 +1,104 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/evaluating-ai-models-through-agent-interaction.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="evalhub-how-agent-driven-evaluation-works_{context}"]
+= How agent-driven evaluation works
+
+[role="_abstract"]
+When you interact with your AI coding agent to evaluate a model, the agent follows a structured process from discovery through execution and result interpretation.
+Understanding this process helps you make effective use of agent-driven evaluations and interpret the results accurately.
+
+== Context-aware framework recommendations
+
+{evalhub} maps evaluation providers to AI application types through agent discoverability metadata.
+When you describe what you are building, the agent reads the `recommended_when`, `evaluates`, and `target_type` fields in provider metadata to identify which frameworks are appropriate.
+
+[IMPORTANT]
+====
+Metadata-driven recommendations currently work only for the lm-evaluation-harness provider, which is the only provider that includes agent metadata at both the provider and benchmark levels.
+For other providers (Garak, GuideLLM, LightEval), agent recommendations rely on static skill descriptions in the {evalhub-skills-plugin} or {evalhub-mcp-server}, not on API metadata.
+====
+
+The following mappings guide the agent's recommendations:
+
+* *General reasoning and knowledge*: The agent recommends lm-evaluation-harness for benchmarks such as MMLU, ARC, and HumanEval.
+This is the only provider with metadata-driven recommendations.
+* *RAG pipelines*: RAGAS for retrieval quality metrics such as faithfulness, context precision, and answer relevance. RAGAS is a planned provider that is not yet included in the default {evalhub} installation.
+* *Safety-critical systems*: Garak for toxicity probes and adversarial testing.
+Recommendations are based on static skill descriptions, not API metadata.
+* *Latency and throughput*: GuideLLM for inference server performance benchmarking.
+Recommendations are based on static skill descriptions, not API metadata.
+* *Embedding quality*: MTEB for embedding model evaluation. MTEB is a planned provider that is not yet included in the default {evalhub} installation.
+
+These recommendations are guidance, not an automated recommendation engine.
+The agent surfaces this guidance based on context, and you can accept, reject, or override the recommendation.
+
+== Evaluation execution model
+
+When an agent triggers an evaluation, the following process occurs:
+
+. *Collection expansion*: If you selected an evaluation collection (a group of benchmarks organized by domain), {evalhub} expands the collection into its individual benchmarks.
+Each benchmark specifies the evaluation provider, task name, and pass or fail threshold.
+
+. *Provider routing*: Each benchmark is dispatched to its designated evaluation provider.
+Benchmarks from the same provider are batched together.
+Different providers run in parallel when possible.
+
+. *Job creation*: For each provider, {evalhub} creates an evaluation job.
+Jobs for lm-evaluation-harness-based benchmarks create `LMEvalJob` custom resources on your {product-title} cluster.
+Each job runs as a Kubernetes pod.
+An init container copies the driver binary into a shared volume, and the main container executes the driver process, which runs the evaluation and reports progress through an HTTP API.
+
+. *Result aggregation*: When all benchmarks complete, {evalhub} aggregates the results.
+Each benchmark receives a score, and the collection produces a weighted aggregate score based on the benchmark weights defined in the collection.
+
+== Evaluation job lifecycle
+
+Evaluation jobs progress through the following states:
+
+.Evaluation job lifecycle states
+[cols="1,3", options="header"]
+|===
+|State
+|Description
+
+|New
+|The job has been created but not yet scheduled.
+
+|Scheduled
+|The job has been scheduled and is waiting for cluster resources.
+
+|Running
+|The evaluation is in progress.
+The agent can poll for progress updates during this state.
+
+|Complete
+|The evaluation has finished successfully.
+Results are available for retrieval.
+
+|Canceled
+|The job was canceled by the user or agent.
+
+|Suspended
+|The job is suspended, typically by the Kueue job queue manager when cluster resources are constrained.
+|===
+
+The agent tracks job progress by polling the job status and presenting updates.
+For long-running evaluations, the {evalhub-skills-plugin} persists job IDs so that monitoring can continue across agent sessions.
+
+== How results flow back to the agent
+
+When an evaluation completes, the agent retrieves and presents the results in three layers:
+
+Per-benchmark scores:: Individual scores for each benchmark in the evaluation.
+For benchmarks with agent metadata, the `result_interpretation` field explains what the score means and the `score_ranges` field maps score values to qualitative meanings (for example, "0.0 - 0.3: Poor" or "0.7 - 1.0: Good").
+
+Weighted aggregate:: The collection-level weighted aggregate score, calculated from individual benchmark scores and their configured weights.
+This provides a single summary metric for the evaluation.
+
+Pass or fail status:: Each benchmark has a pass threshold, and the collection has an overall pass threshold.
+The agent reports whether individual benchmarks and the collection as a whole passed or failed.
+
+Results are also tracked in MLflow experiments, enabling you to compare results across multiple evaluation runs and track quality trends over time.

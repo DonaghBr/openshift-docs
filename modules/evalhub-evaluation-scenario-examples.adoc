@@ -1,0 +1,116 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/evaluating-ai-models-through-agent-interaction.adoc
+
+:_mod-docs-content-type: PROCEDURE
+[id="evalhub-evaluation-scenario-examples_{context}"]
+= Evaluate AI applications: RAG, safety, and agentic workflow examples
+
+[role="_abstract"]
+You can follow these end-to-end scenario examples to understand how agent-driven evaluation works for different AI application types.
+Each example demonstrates the complete pattern from discovery through execution and result interpretation.
+
+.Prerequisites
+
+* The {evalhub-skills-plugin} or the {evalhub-mcp-server} is installed and configured.
+* Your {evalhub} instance is deployed and accessible.
+
+.Procedure
+
+. *RAG pipeline evaluation with RAGAS* (planned provider): Ask your agent to discover RAG-specific evaluations.
++
+[NOTE]
+====
+RAGAS is a planned evaluation provider that is not yet included in the default {evalhub} installation.
+This example illustrates the expected workflow when RAGAS becomes available.
+====
++
+----
+I have a RAG pipeline for customer support. What evaluations can I run to check retrieval quality?
+----
++
+The agent recommends RAGAS and lists available benchmarks: faithfulness, context precision, context recall, and answer relevance.
+
+. Run the RAG evaluation:
++
+----
+Run a RAGAS evaluation with faithfulness and context_precision benchmarks against my model.
+----
++
+The agent submits the evaluation to {evalhub} and monitors the job.
+
+. Review the RAG evaluation results:
++
+----
+Show me the RAGAS evaluation results.
+----
++
+The agent presents the scores.
+For RAGAS benchmarks, scores range from 0.0 to 1.0, where higher values indicate better quality:
++
+* *Faithfulness*: Measures whether the generated answer is faithful to the retrieved context.
+A score above 0.7 indicates good faithfulness.
+* *Context precision*: Measures whether the most relevant documents are ranked highest in the retrieved context.
+A score above 0.6 indicates good precision.
+
+. *Safety evaluation with Garak*: Ask your agent to discover safety evaluations:
++
+----
+I need to check my model for toxicity and adversarial vulnerabilities before deployment.
+----
++
+The agent recommends Garak for safety and toxicity adversarial testing.
+
+. Run the safety evaluation:
++
+----
+Run a Garak toxicity evaluation against my model.
+----
++
+The agent submits the evaluation.
+Garak evaluations run adversarial probes that test the model's responses to various attack patterns.
+
+. Review the safety evaluation results:
++
+----
+Show me the safety evaluation results.
+----
++
+Garak results indicate pass or fail for each probe category.
+A passing result means the model did not produce toxic or harmful outputs for that category of adversarial input.
+Review any failed probes to understand which attack patterns the model is vulnerable to:
++
+----
+What specific probes failed?
+----
++
+The agent provides details on which adversarial patterns triggered harmful outputs, enabling targeted mitigation.
+
+. *Agentic workflow evaluation*: Ask your agent to discover agentic workflow evaluations:
++
+----
+I am building an agent that uses tool calling. What evaluations should I run?
+----
++
+The agent recommends lm-evaluation-harness benchmarks for multi-turn interactions and tool-calling accuracy.
+
+. Run the agentic workflow evaluation:
++
+----
+Run the tool-calling and multi-turn benchmarks from lm-evaluation-harness against my model.
+----
++
+The agent submits the evaluation.
+These benchmarks test the model's ability to correctly call tools, handle multi-step conversations, and maintain context across turns.
+
+. Review the agentic workflow evaluation results:
++
+----
+Show me the agentic evaluation results.
+----
++
+For lm-evaluation-harness benchmarks with agent metadata, the agent explains each score by using the `result_interpretation` field and maps the score to a qualitative range by using `score_ranges`.
+For example:
++
+* *Tool-calling accuracy*: Score of 0.85 (range 0.7-1.0: "Good - Model correctly identifies and calls tools in most scenarios").
+* *Multi-turn consistency*: Score of 0.72 (range 0.7-1.0: "Good - Model maintains context and coherence across conversation turns").

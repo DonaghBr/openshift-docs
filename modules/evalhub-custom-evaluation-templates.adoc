@@ -1,0 +1,187 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/agent-discoverability-reference.adoc
+
+:_mod-docs-content-type: REFERENCE
+[id="evalhub-custom-evaluation-templates_{context}"]
+= Custom evaluation templates and provider metadata reference
+
+[role="_abstract"]
+You can create custom evaluation collections and provider configurations with agent metadata to extend {evalhub} for organization-specific evaluation needs.
+Use this reference for the YAML structure, field constraints, and worked examples.
+
+== Evaluation collection YAML structure
+
+An evaluation collection groups benchmarks by domain and defines weights and pass thresholds for aggregate scoring.
+
+[source,yaml]
+----
+id: my-custom-collection
+name: My Custom Collection
+description: Custom evaluation suite for my application
+category: custom
+pass_criteria:
+  threshold: 55.0
+benchmarks:
+  - id: mmlu
+    provider_id: lm_evaluation_harness
+    weight: 0.4
+    pass_criteria:
+      threshold: 60.0
+  - id: arc_challenge
+    provider_id: lm_evaluation_harness
+    weight: 0.3
+    pass_criteria:
+      threshold: 50.0
+  - id: hellaswag
+    provider_id: lm_evaluation_harness
+    weight: 0.3
+    pass_criteria:
+      threshold: 50.0
+----
+
+Where:
+
+`id`:: A unique identifier for the collection.
+Use lowercase letters, numbers, and hyphens.
+`name`:: A human-readable display name for the collection.
+`description`:: A human-readable description of the collection's purpose.
+`category`:: A categorization tag (for example, `safety`, `general`, `custom`).
+`pass_criteria.threshold`:: The minimum weighted aggregate score for the collection to pass overall.
+`benchmarks`:: A list of benchmarks included in the collection.
+Each benchmark specifies the provider ID, weight, and pass criteria threshold.
+`benchmarks[].id`:: The benchmark identifier within the provider.
+`benchmarks[].provider_id`:: The provider that runs this benchmark (uses underscores, for example `lm_evaluation_harness`).
+`benchmarks[].pass_criteria.threshold`:: The minimum score for this benchmark to pass.
+
+== Agent metadata for custom providers
+
+To add agent metadata to a custom provider configuration, include the `agent` block with the following fields:
+
+.AgentMetadata field constraints
+[cols="2,1,3,2", options="header"]
+|===
+|Field
+|Type
+|Constraint
+|Example value
+
+|`evaluates`
+|`[]string`
+|Free-form string list
+|`["code quality", "test coverage"]`
+
+|`recommended_when`
+|`[]string`
+|Free-form natural language list
+|`["User is evaluating code generation quality"]`
+
+|`target_type`
+|`enum`
+|Must be `model`, `agent`, or `inference_server`
+|`model`
+
+|`summary`
+|`string`
+|Recommended maximum of 200 characters
+|`"Evaluates code generation quality and correctness"`
+
+|`complements`
+|`[]string`
+|Should reference valid provider IDs
+|`["garak", "guidellm"]`
+
+|`hints`
+|`[]string`
+|Free-form natural language list
+|`["Requires a code generation prompt dataset"]`
+
+|`result_interpretation`
+|`[]string`
+|Free-form natural language list
+|`["Higher pass rates indicate better code generation"]`
+|===
+
+== target_type taxonomy
+
+The `target_type` field indicates what kind of target the provider evaluates:
+
+model:: The provider evaluates a language model's outputs.
+This is the most common target type.
+Use for benchmarks that measure model quality, knowledge, or safety.
+
+agent:: The provider evaluates an AI agent's behavior, including multi-turn conversations, tool calling, and task completion.
+Use for benchmarks that measure agent-specific capabilities.
+
+inference_server:: The provider evaluates the performance characteristics of an inference server, such as latency, throughput, and concurrency handling.
+Use for performance benchmarks.
+
+[NOTE]
+====
+Currently, only the `model` target type is used by built-in provider configurations.
+The `agent` and `inference_server` values are supported but not yet used by any default provider.
+====
+
+== Complete worked example
+
+The following example shows a custom provider configuration with agent metadata that you can add to {evalhub} without modifying existing providers:
+
+[source,yaml]
+----
+name: my-code-quality-evaluator
+description: Evaluates code generation models for correctness and style
+version: "1.0"
+type: custom
+agent:
+  evaluates:
+    - code generation
+    - code correctness
+    - coding style
+  recommended_when:
+    - "User is building or evaluating a code generation model or copilot-style assistant"
+    - "User needs to measure code correctness and style compliance"
+  target_type: model
+  summary: >-
+    Evaluates code generation quality using correctness
+    and style benchmarks
+  complements:
+    - lm-evaluation-harness
+    - garak
+  hints:
+    - "Provide the model name in model_args"
+    - "The evaluator generates code from prompts and checks against test cases"
+    - "Requires Python 3.11 or later"
+  result_interpretation:
+    - "Scores represent pass rates from 0.0 to 1.0, higher values indicate more test cases passed"
+    - "A score above 0.7 indicates production-ready code generation quality"
+benchmarks:
+  - name: basic-correctness
+    description: Basic code correctness from simple prompts
+    agent:
+      result_interpretation: >-
+        Measures pass rate on simple function generation tasks.
+        Each task includes a prompt, expected function signature,
+        and test cases.
+      score_ranges:
+        - range: "0.0 - 0.3"
+          meaning: Poor - model frequently generates incorrect code
+        - range: "0.3 - 0.6"
+          meaning: Fair - model generates correct code for simple tasks
+        - range: "0.6 - 0.8"
+          meaning: Good - model handles most tasks correctly
+        - range: "0.8 - 1.0"
+          meaning: Excellent - near-perfect code generation
+  - name: style-compliance
+    description: Code style and convention adherence
+    agent:
+      result_interpretation: >-
+        Measures adherence to coding style conventions.
+        Evaluates formatting, naming, and documentation patterns.
+      score_ranges:
+        - range: "0.0 - 0.5"
+          meaning: Non-compliant with style conventions
+        - range: "0.5 - 0.8"
+          meaning: Partially compliant
+        - range: "0.8 - 1.0"
+          meaning: Fully compliant with style conventions
+----

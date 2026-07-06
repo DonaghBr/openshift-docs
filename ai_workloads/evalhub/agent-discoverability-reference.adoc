@@ -1,0 +1,28 @@
+:_mod-docs-content-type: ASSEMBLY
+include::_attributes/common-attributes.adoc[]
+[id="agent-discoverability-reference"]
+= Agent discoverability API and schema reference
+:context: agent-discoverability-reference
+
+toc::[]
+
+[role="_abstract"]
+You can look up schema definitions, SDK models, Model Context Protocol (MCP) interfaces, and configuration options for agent discoverability metadata.
+Agent discoverability metadata is exposed through three layers: the {evalhub} REST API with OpenAPI schemas, the Python SDK with typed model attributes, and the {evalhub-mcp-server} with tools, resources, and prompts.
+Each layer surfaces the same underlying metadata with interface-appropriate access patterns.
+
+include::modules/evalhub-agent-discoverability-metadata-design.adoc[leveloffset=+1]
+
+include::modules/evalhub-agent-discoverability-metadata-schema.adoc[leveloffset=+1]
+
+include::modules/evalhub-python-sdk-agent-metadata-models.adoc[leveloffset=+1]
+
+include::modules/evalhub-filtering-providers-with-sdk.adoc[leveloffset=+1]
+
+include::modules/evalhub-mcp-server-interface-reference.adoc[leveloffset=+1]
+
+include::modules/evalhub-agent-invocable-operations-reference.adoc[leveloffset=+1]
+
+include::modules/evalhub-capability-to-provider-decision-matrix.adoc[leveloffset=+1]
+
+include::modules/evalhub-custom-evaluation-templates.adoc[leveloffset=+1]

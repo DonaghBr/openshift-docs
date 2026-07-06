@@ -1,0 +1,113 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/evaluating-ai-models-through-agent-interaction.adoc
+
+:_mod-docs-content-type: PROCEDURE
+[id="evalhub-following-edd-workflow_{context}"]
+= Follow the evaluation-driven development workflow with your AI coding agent
+
+[role="_abstract"]
+You can follow the evaluation-driven development (EDD) workflow with your AI coding agent to systematically define evaluation criteria, measure model quality, and iterate on improvements.
+
+.Prerequisites
+
+* The {evalhub-skills-plugin} or the {evalhub-mcp-server} is installed and configured.
+* You have a model or AI application to evaluate.
+* You understand the EDD methodology.
+
+.Procedure
+
+. *Define evaluation criteria* by asking your agent to help you select or create an evaluation collection:
++
+----
+I am building a RAG pipeline for document search. Help me define evaluation criteria.
+----
++
+The agent recommends evaluation dimensions based on your application type and helps you select existing {evalhub} collections or create a custom one.
+For a RAG pipeline, the agent might suggest a collection including faithfulness, context precision, and answer relevance benchmarks.
++
+To create a custom collection with specific weights and thresholds, provide those details:
++
+----
+Create a collection with faithfulness (weight 0.4, threshold 70), context_precision (weight 0.3, threshold 60), and answer_relevance (weight 0.3, threshold 60).
+----
+
+. *Run the baseline evaluation* to establish starting scores:
++
+----
+Run the baseline evaluation against my model.
+----
++
+The agent submits the evaluation, monitors progress, and presents the baseline results.
+Review the per-dimension scores to identify areas of strength and weakness.
++
+Example baseline results:
++
+----
+Faithfulness:       52.0 (threshold: 70.0) - FAIL
+Context Precision:  68.0 (threshold: 60.0) - PASS
+Answer Relevance:   45.0 (threshold: 60.0) - FAIL
+Weighted Aggregate: 54.0 (threshold: 65.0) - FAIL
+----
++
+[NOTE]
+====
+Evaluation scores and thresholds use a 0-100 scale.
+Collection YAML templates define thresholds on this scale (for example, `threshold: 70.0` means a minimum score of 70 out of 100).
+====
+
+. *Identify improvement areas* based on the evaluation results:
++
+----
+Based on the evaluation results, what should I improve first?
+----
++
+The agent analyzes the score gaps and recommends which dimensions to focus on.
+In the example above, faithfulness and answer relevance are below threshold, so the agent might suggest improving the retrieval strategy or adjusting the prompt template.
+
+. *Make changes and re-evaluate* after each improvement:
++
+After modifying your application (for example, adjusting retrieval parameters or improving the prompt), re-run the evaluation:
++
+----
+Run the evaluation again and compare with the baseline.
+----
++
+The agent runs the evaluation and presents a comparison:
++
+----
+                    Baseline    Current     Change
+Faithfulness:       52.0        71.0        +19.0  IMPROVED
+Context Precision:  68.0        65.0        -3.0   REGRESSION
+Answer Relevance:   45.0        62.0        +17.0  IMPROVED
+Weighted Aggregate: 54.0        66.0        +12.0  IMPROVED
+----
+
+. *Iterate until quality thresholds are met*.
++
+Continue the cycle of making changes and re-evaluating.
+Ask the agent to track your progress across iterations:
++
+----
+Show me the trend of my evaluation scores across all runs.
+----
++
+The agent retrieves historical results from MLflow and presents the quality trend.
+
+. *Verify final quality* when all dimensions meet their thresholds:
++
+----
+Do all my evaluation dimensions pass their thresholds?
+----
++
+The agent confirms whether the weighted aggregate and individual dimension scores meet the defined criteria.
+
+.Verification
+
+* Verify that all evaluation runs are tracked in MLflow by asking:
++
+----
+Show me the MLflow experiment history for this evaluation collection.
+----
+
+* Verify that the final evaluation scores meet the pass thresholds defined in your collection.

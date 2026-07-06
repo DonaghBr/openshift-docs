@@ -1,0 +1,127 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/agent-discoverability-reference.adoc
+
+:_mod-docs-content-type: REFERENCE
+[id="evalhub-python-sdk-agent-metadata-models_{context}"]
+= Python SDK AgentMetadata and BenchmarkAgentMetadata models
+
+[role="_abstract"]
+The `eval-hub-sdk` Python package provides typed model classes for agent discoverability metadata.
+Use this reference to look up model attributes, types, and access patterns when working with agent metadata programmatically.
+
+== `AgentMetadata` model
+
+The `AgentMetadata` model is available in the `evalhub.models` module.
+The field semantics are the same as the API schema fields described in the agent discoverability metadata schema reference.
+
+.AgentMetadata model attributes
+[cols="2,2,1,2", options="header"]
+|===
+|Attribute
+|Python type
+|Default
+|Description
+
+|`evaluates`
+|`list[str]`
+|`None`
+|Evaluation capability tags.
+
+|`recommended_when`
+|`list[str]`
+|`None`
+|When to recommend this provider.
+
+|`target_type`
+|`str`
+|`None`
+|Target type: `"model"`, `"agent"`, or `"inference_server"`.
+
+|`summary`
+|`str`
+|`None`
+|Concise provider description (recommended maximum of 200 characters).
+
+|`complements`
+|`list[str]`
+|`None`
+|Complementary provider IDs.
+
+|`hints`
+|`list[str]`
+|`None`
+|Usage hints for agents.
+
+|`result_interpretation`
+|`list[str]`
+|`None`
+|How to interpret results.
+|===
+
+== `BenchmarkAgentMetadata` model
+
+The `BenchmarkAgentMetadata` model provides access to benchmark-specific agent metadata.
+
+.BenchmarkAgentMetadata model attributes
+[cols="2,2,1,2", options="header"]
+|===
+|Attribute
+|Python type
+|Default
+|Description
+
+|`result_interpretation`
+|`str`
+|`None`
+|How to interpret scores for this benchmark.
+
+|`score_ranges`
+|`list[ScoreRange]`
+|`None`
+|Score-to-meaning mappings.
+Each `ScoreRange` has `range` (str) and `meaning` (str) attributes.
+|===
+
+== Attribute access patterns
+
+Access agent metadata through the `agent` attribute on provider and benchmark response objects:
+
+[source,python]
+----
+from evalhub.client import EvalHubClient
+
+client = EvalHubClient(
+    base_url="https://evalhub.apps.example.com",
+    token="<token>",
+    tenant="<tenant>"
+)
+
+# Access provider-level agent metadata
+provider = client.providers.get("lm-evaluation-harness")
+if provider.agent is not None:
+    print(provider.agent.evaluates)
+    print(provider.agent.recommended_when)
+    print(provider.agent.target_type)
+
+# Access benchmark-level agent metadata
+for benchmark in provider.benchmarks:
+    if benchmark.agent is not None:
+        print(benchmark.agent.result_interpretation)
+        for sr in benchmark.agent.score_ranges or []:
+            print(f"  {sr.range}: {sr.meaning}")
+----
+
+== Backward compatibility
+
+The `agent` attribute defaults to `None` on both provider and benchmark response objects.
+The SDK does not raise exceptions when connected to older {evalhub} API versions that do not include the agent metadata block.
+
+Before accessing agent metadata attributes, always check that the `agent` attribute is not `None`:
+
+[source,python]
+----
+if provider.agent is not None:
+    # Safe to access agent metadata attributes
+    evaluates = provider.agent.evaluates
+----

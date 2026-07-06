@@ -1,0 +1,136 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/setting-up-agent-discoverable-evaluations.adoc
+
+:_mod-docs-content-type: REFERENCE
+[id="evalhub-supported-agents-and-frameworks_{context}"]
+= Supported AI coding agents and evaluation frameworks
+
+[role="_abstract"]
+You can access agent-discoverable evaluations through different AI coding agents and discovery mechanisms.
+Review the compatibility information to determine which installation path is appropriate for your development environment.
+
+== Agent platform compatibility
+
+The following table shows which discovery mechanisms each AI coding agent platform supports.
+
+.Agent platform compatibility matrix
+[cols="2,1,1,2", options="header"]
+|===
+|Agent platform
+|agentskills.io skills
+|MCP server
+|Notes
+
+|Claude Code
+|Yes
+|Yes
+|Supports both discovery mechanisms.
+The {evalhub-skills-plugin} is automatically discovered from the file system.
+
+|GitHub Copilot
+|Yes (manual setup)
+|Yes
+|Requires manual placement of skill directories.
+MCP server integration through Visual Studio Code MCP configuration.
+
+|OpenAI Codex CLI
+|Yes (manual setup)
+|No
+|Requires manual placement of skill directories in the agent's search path.
+
+|Visual Studio Code (with MCP support)
+|No
+|Yes
+|Connect through the {evalhub-mcp-server} in stdio or HTTP mode.
+|===
+
+== Discovery mechanism comparison
+
+The {evalhub-skills-plugin} and {evalhub-mcp-server} provide different approaches to agent-discoverable evaluations.
+
+.Discovery mechanism comparison
+[cols="1,2,2", options="header"]
+|===
+|Feature
+|Agent skills plugin (agentskills.io)
+|MCP server
+
+|Discovery type
+|File-system-based
+|Protocol-based (MCP)
+
+|Transport
+|Local file system
+|stdio (local) or HTTP/SSE (remote)
+
+|Support status
+|Technology Preview
+|Developer Preview
+
+|Installation
+|Plugin marketplace or local clone
+|Binary download or container image
+
+|Multi-tenancy
+|Via environment variables
+|Built-in tenant configuration
+
+|Guided workflows
+|Natural language skill descriptions
+|MCP prompts (for example, `edd_workflow`, `evaluate_model`)
+|===
+
+== Evaluation provider availability
+
+The following table shows which evaluation providers include agent discoverability metadata.
+
+[NOTE]
+====
+Additional providers may be available beyond those listed here, including `ibm-clear` and `garak-kfp`.
+Use the `GET /api/v1/evaluations/providers` endpoint or ask your agent to list providers for a complete view.
+RAGAS and MTEB are planned providers that are not yet included in the default {evalhub} installation.
+====
+
+.Evaluation provider agent metadata availability
+[cols="2,1,1,2", options="header"]
+|===
+|Provider
+|Provider-level metadata
+|Per-benchmark metadata
+|Evaluation focus
+
+|lm-evaluation-harness
+|Yes
+|Yes (188 benchmarks)
+|Accuracy, reasoning, knowledge, math, science, safety, multilingual, code
+
+|Garak
+|No
+|No
+|Safety, toxicity, adversarial testing
+
+|GuideLLM
+|No
+|No
+|Latency and throughput benchmarking
+
+|LightEval
+|No
+|No
+|Fast capability checks
+
+|RAGAS (planned)
+|No
+|No
+|RAG pipeline quality
+
+|MTEB (planned)
+|No
+|No
+|Embedding quality
+|===
+
+Currently, only the lm-evaluation-harness provider includes agent metadata at both the provider and benchmark levels.
+Other providers support agent-driven evaluation submission and result retrieval but do not yet include agent discoverability metadata.
+For providers without metadata, agent recommendations rely on static skill descriptions in the {evalhub-skills-plugin} or {evalhub-mcp-server}.

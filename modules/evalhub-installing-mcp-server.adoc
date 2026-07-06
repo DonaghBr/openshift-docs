@@ -1,0 +1,160 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/setting-up-agent-discoverable-evaluations.adoc
+
+:_mod-docs-content-type: PROCEDURE
+[id="evalhub-installing-mcp-server_{context}"]
+= Install and configure the EvalHub MCP server
+
+[role="_abstract"]
+You can install the {evalhub-mcp-server} to enable MCP-compatible AI coding agents to discover and run {evalhub} model evaluations.
+The MCP server supports both local and remote connections.
+
+[IMPORTANT]
+====
+The {evalhub-mcp-server} is Developer Preview.
+Features and interfaces are subject to change in future releases.
+====
+
+.Prerequisites
+
+* An {evalhub} instance is deployed and accessible.
+* A valid authentication token for your {evalhub} instance is available.
+
+.Procedure
+
+. Download the {evalhub-mcp-server} binary for your platform from the GitHub Releases page, or install it by using Homebrew:
++
+[source,terminal]
+----
+$ brew install eval-hub/tap/evalhub-mcp
+----
++
+Alternatively, run the MCP server as a container image:
++
+[source,terminal]
+----
+$ podman pull quay.io/eval-hub/evalhub-mcp:latest
+----
+
+. Configure the MCP server for your AI coding agent.
+Choose one of the following integration methods based on your agent and transport preference.
++
+--
+*Claude Code in stdio mode:*
+
+In the following command, replace `<evalhub_url>` with the URL of your {evalhub} instance, `<token>` with your authentication token, and `<tenant>` with your tenant namespace:
+
+[source,terminal]
+----
+$ claude mcp add evalhub -- evalhub-mcp --url <evalhub_url> --token <token> --tenant <tenant>
+----
+
+*Claude Code in HTTP mode:*
+
+Start the MCP server:
+
+[source,terminal]
+----
+$ evalhub-mcp --url <evalhub_url> --token <token> --tenant <tenant> --transport http --port 8080
+----
++
+[NOTE]
+====
+The standalone binary defaults to port 8080.
+When deployed by the operator on {product-title}, the MCP server listens on port 8445.
+Ensure you use the correct port for your deployment method.
+====
+
+Then register the running server in Claude Code:
+
+[source,terminal]
+----
+$ claude mcp add evalhub --transport http --url http://localhost:8080
+----
+
+*Visual Studio Code or GitHub Copilot in stdio mode:*
+
+Add the following configuration to your Visual Studio Code MCP settings:
+
+[source,json]
+----
+{
+  "mcpServers": {
+    "evalhub": {
+      "command": "evalhub-mcp",
+      "args": [
+        "--url", "<evalhub_url>",
+        "--token", "<token>",
+        "--tenant", "<tenant>"
+      ]
+    }
+  }
+}
+----
+
+*Visual Studio Code or GitHub Copilot in HTTP mode:*
+
+Start the MCP server as shown in the preceding step, then add the following configuration:
+
+[source,json]
+----
+{
+  "mcpServers": {
+    "evalhub": {
+      "transport": "http",
+      "url": "http://localhost:8080"
+    }
+  }
+}
+----
+--
+
+. Configure authentication.
++
+You can provide authentication credentials through CLI flags, environment variables, or a configuration file:
++
+--
+*CLI flags:*
+
+[source,terminal]
+----
+$ evalhub-mcp --url <evalhub_url> --token <token> --tenant <tenant>
+----
+
+*Environment variables:*
+
+[source,terminal]
+----
+$ export EVALHUB_BASE_URL=<evalhub_url>
+$ export EVALHUB_TOKEN=<token>
+$ export EVALHUB_TENANT=<tenant>
+$ evalhub-mcp
+----
+
+For self-signed certificates, add the `--insecure` flag or set `EVALHUB_INSECURE=true`.
+--
+
+.Verification
+
+After configuration, verify that your agent can communicate with the {evalhub-mcp-server}:
+
+. Start a new agent session.
+. Ask the agent to list available evaluation providers:
++
+----
+List the available evaluation providers in EvalHub.
+----
++
+The agent should return a list of providers, such as `lm-evaluation-harness`, `garak`, and `guidellm`.
+
+.Troubleshooting
+
+If the agent cannot connect to the {evalhub-mcp-server}:
+
+* Verify that the MCP server process is running.
+For stdio mode, the agent starts the server automatically.
+For HTTP mode, verify that the server is listening on the configured port.
+* Verify that `EVALHUB_BASE_URL` is reachable from the machine running the MCP server.
+* Check that the authentication token has not expired.
+* If the agent does not detect the MCP server, verify that the MCP configuration is in the correct settings file for your agent platform.

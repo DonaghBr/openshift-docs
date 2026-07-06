@@ -414,6 +414,10 @@ endif::openshift-origin[]
 :rhoai: RHOAI
 :rhoai-diy: Red{nbsp}Hat OpenShift AI Self-Managed
 :rhoai-cloud: Red{nbsp}Hat OpenShift AI Cloud Service
+// EvalHub attributes
+:evalhub: EvalHub
+:evalhub-skills-plugin: EvalHub agent skills plugin
+:evalhub-mcp-server: EvalHub MCP server
 :ai-first: artificial intelligence (AI)
 //RHEL AI attribute listed with RHEL family
 //zero trust workload identity manager

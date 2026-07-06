@@ -1,0 +1,26 @@
+:_mod-docs-content-type: ASSEMBLY
+include::_attributes/common-attributes.adoc[]
+[id="evaluating-ai-models-through-agent-interaction"]
+= Evaluate AI models through agent interaction
+:context: evaluating-ai-models-through-agent-interaction
+
+toc::[]
+
+[role="_abstract"]
+You can discover evaluation frameworks, run evaluations, and compare results directly through your AI coding agent.
+This makes systematic evaluation as natural as testing in test-driven development (TDD), keeping evaluation discipline within the development flow.
+
+{evalhub} supports three interaction surfaces for agent-driven evaluation: the {evalhub-skills-plugin} for agents with file-system access, the {evalhub-mcp-server} for agents compatible with the Model Context Protocol (MCP), and the Python SDK or CLI for automation and CI/CD pipelines.
+Each surface provides discovery, execution, result retrieval, and comparison capabilities.
+
+include::modules/evalhub-how-agent-driven-evaluation-works.adoc[leveloffset=+1]
+
+include::modules/evalhub-discovering-and-running-evaluations.adoc[leveloffset=+1]
+
+include::modules/evalhub-evaluation-driven-development-methodology.adoc[leveloffset=+1]
+
+include::modules/evalhub-following-edd-workflow.adoc[leveloffset=+1]
+
+include::modules/evalhub-evaluation-scenario-examples.adoc[leveloffset=+1]
+
+include::modules/evalhub-transitioning-from-rest-api.adoc[leveloffset=+1]

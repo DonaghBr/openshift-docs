@@ -1,0 +1,75 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/setting-up-agent-discoverable-evaluations.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="evalhub-agent-discoverable-evaluations-overview_{context}"]
+= Agent-discoverable evaluations overview
+
+[role="_abstract"]
+You can use agent-discoverable evaluations to run {evalhub} model evaluations directly from your AI coding agent during development.
+Agent-discoverable evaluations eliminate the need to learn the {evalhub} REST API or switch between tools, making systematic evaluation as natural as writing a prompt.
+
+Agent-discoverable evaluations connect your AI coding agent to {evalhub} so that the agent can discover available evaluation frameworks, recommend the appropriate framework for your application type, run evaluations inline, and present results for iteration.
+This capability supports evaluation-driven development (EDD), the AI equivalent of test-driven development (TDD) for probabilistic systems.
+
+== Three-component architecture
+
+Agent-discoverable evaluations rely on three components that work together to expose {evalhub} capabilities to AI coding agents:
+
+API agent metadata:: Evaluation provider configurations in {evalhub} include an optional `agent` metadata block that describes what each provider evaluates, when to recommend it, and how to interpret results.
+This metadata enables agents to make context-aware recommendations.
++
+Agent metadata uses flat fields optimized for LLM consumption rather than nested objects.
+Each provider can include metadata fields such as `evaluates`, `recommended_when`, `target_type`, `summary`, `complements`, `hints`, and `result_interpretation`.
+
+Agent skills plugin:: The {evalhub-skills-plugin} follows the link:https://agentskills.io/home[agentskills.io] open standard for file-system-based agent discovery.
+When installed, agents such as Claude Code automatically discover evaluation skills and can call them to list providers, submit evaluations, and retrieve results.
++
+The plugin is Technology Preview.
+
+MCP server:: The {evalhub-mcp-server} implements the link:https://modelcontextprotocol.io/specification/2025-11-25[Model Context Protocol (MCP)] to expose {evalhub} capabilities as MCP tools, resources, and prompts.
+Agents that support MCP, such as Claude Code, GitHub Copilot, and Visual Studio Code, can connect to the MCP server for protocol-based discovery and running evaluations.
++
+The MCP server is Developer Preview.
+
+== Progressive discovery mechanism
+
+Agent-discoverable evaluations follow a progressive discovery model with three stages:
+
+. *Discovery*: The agent discovers available evaluation providers, benchmarks, and collections through the {evalhub-skills-plugin} or {evalhub-mcp-server}.
+The agent reads provider metadata to understand what each framework evaluates and when it is appropriate.
+. *Activation*: Based on the context of what you are building, the agent recommends an evaluation framework.
+For example, if you are building a general-purpose language model application, the agent recommends lm-evaluation-harness for reasoning and knowledge evaluation.
+. *Execution*: The agent submits evaluations to {evalhub}, monitors job progress, and presents results with per-benchmark scores and weighted aggregate pass or fail status.
+
+== Supported evaluation frameworks
+
+{evalhub} supports the following evaluation providers through agent-discoverable evaluations:
+
+* *lm-evaluation-harness*: General-purpose LLM evaluation for accuracy, reasoning, knowledge, math, science, safety, multilingual tasks, and code.
+Currently the only provider with agent metadata at both the provider and benchmark levels.
+Metadata-driven recommendations work only for this provider.
+* *RAGAS* (planned): RAG pipeline quality evaluation covering faithfulness, context precision, and answer relevance.
+Not yet included in the default {evalhub} installation.
+* *Garak*: Safety and toxicity adversarial testing with adversarial probes.
+No agent metadata; agent recommendations rely on static skill descriptions.
+* *GuideLLM*: Latency and throughput benchmarking for inference servers.
+No agent metadata; agent recommendations rely on static skill descriptions.
+* *LightEval*: Fast capability checks for lightweight evaluation.
+No agent metadata; agent recommendations rely on static skill descriptions.
+* *MTEB* (planned): Embedding quality evaluation.
+Not yet included in the default {evalhub} installation.
+
+[IMPORTANT]
+====
+Currently, only the lm-evaluation-harness provider includes agent metadata at both the provider and benchmark levels.
+Other providers (Garak, GuideLLM, LightEval) support agent-driven evaluation submission and result retrieval, but agent recommendations for these providers rely on static skill descriptions in the {evalhub-skills-plugin} or {evalhub-mcp-server}, not on API metadata.
+RAGAS and MTEB are planned evaluation providers that are not yet available in the default {evalhub} installation.
+====
+
+== Positioning within {rhoai-full}
+
+Agent-discoverable evaluations are part of the {evalhub} evaluation stack in {rhoai-full}.
+{evalhub} provides a unified API for submitting evaluations across multiple frameworks, tracking results in MLflow experiments, and managing evaluation collections that group benchmarks by domain.
+Agent-discoverable evaluations add a discovery and interaction layer on top of these capabilities, enabling AI coding agents to access them without requiring direct API calls.

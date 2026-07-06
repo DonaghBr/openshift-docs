@@ -1,0 +1,92 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/evaluating-ai-models-through-agent-interaction.adoc
+
+:_mod-docs-content-type: CONCEPT
+[id="evalhub-evaluation-driven-development-methodology_{context}"]
+= Evaluation-driven development methodology
+
+[role="_abstract"]
+Evaluation-driven development (EDD) is a systematic approach to AI application quality that embeds model evaluation into the development workflow.
+You can use EDD to establish measurable quality criteria, track improvements quantitatively, and iterate on model quality with the same discipline that test-driven development (TDD) brings to traditional software.
+
+== How EDD differs from TDD
+
+Traditional TDD uses binary pass or fail assertions: a test either passes or fails.
+EDD extends this concept for probabilistic AI systems by using gradient scores (typically on a 0-100 scale) across multiple evaluation dimensions.
+
+.EDD compared to TDD
+[cols="1,2,2", options="header"]
+|===
+|Aspect
+|TDD
+|EDD
+
+|Score type
+|Binary pass or fail
+|Gradient scores (0-100)
+
+|Evaluation scope
+|Single assertion per test
+|Multiple dimensions per evaluation (for example, accuracy, relevance, safety)
+
+|Iteration signal
+|Test passes or fails
+|Score improves, regresses, or stays the same across dimensions
+
+|Quality threshold
+|All tests pass
+|Weighted aggregate score exceeds a defined threshold
+|===
+
+== The three-phase EDD cycle
+
+EDD follows a repeating three-phase cycle:
+
+*Phase 1: Define criteria*
+
+In this phase, you articulate the evaluation dimensions that matter for your application.
+You select or create an {evalhub} evaluation collection that groups relevant benchmarks with weights and pass thresholds.
+
+For example, a RAG pipeline might define criteria across three dimensions:
+
+* *Faithfulness* (weight: 0.4, threshold: 70): Does the generated answer accurately reflect the retrieved context?
+* *Context precision* (weight: 0.3, threshold: 60): Are the most relevant documents retrieved?
+* *Answer relevance* (weight: 0.3, threshold: 60): Is the answer relevant to the question?
+
+Evaluation scores and thresholds use a 0-100 scale, matching the `pass_criteria.threshold` values in collection YAML templates.
+
+*Phase 2: Measure scores*
+
+In this phase, you run baseline evaluations against your model.
+The evaluation produces quantitative scores for each dimension, giving you a measurable starting point.
+
+Your agent submits the evaluation to {evalhub}, monitors progress, and presents the results with per-benchmark scores and a weighted aggregate.
+Results are tracked in MLflow experiments for historical comparison.
+
+*Phase 3: Iterate*
+
+In this phase, you optimize your application based on the evaluation gaps identified in Phase 2.
+You might adjust prompts, change retrieval parameters, fine-tune the model, or switch to a different model.
+
+After each change, you re-run the evaluation and compare scores to the previous run.
+The agent helps identify which dimensions improved, regressed, or stayed the same.
+
+You continue iterating until the weighted aggregate score exceeds your defined threshold or until each individual dimension score meets its threshold.
+
+== When to use EDD
+
+EDD is most effective in the following scenarios:
+
+* *Rapid prototyping*: When you are experimenting with different models, prompts, or configurations and need quantitative feedback on each iteration.
+* *Model selection*: When you need to compare multiple models against the same evaluation criteria to select the best one.
+* *Quality gates*: When you need to establish measurable quality thresholds for deployment readiness.
+* *Regression detection*: When you need to verify that changes to your application do not degrade model quality.
+
+== How EDD maps to EvalHub capabilities
+
+Each phase of the EDD cycle maps to specific {evalhub} features:
+
+* *Define Criteria*: Create evaluation collections with benchmarks, weights, and thresholds.
+* *Measure Scores*: Submit evaluations through providers and collect results.
+* *Iterate*: Use MLflow experiment tracking to compare results across runs and identify trends.

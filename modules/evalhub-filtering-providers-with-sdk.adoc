@@ -1,0 +1,111 @@
+// Module included in the following assemblies:
+//
+// * ai_workloads/evalhub/agent-discoverability-reference.adoc
+
+:_mod-docs-content-type: PROCEDURE
+[id="evalhub-filtering-providers-with-sdk_{context}"]
+= Filter providers and discover evaluations with the Python SDK
+
+[role="_abstract"]
+You can use the `eval-hub-sdk` Python package to programmatically filter evaluation providers by target type or evaluation capability.
+This is useful for automation scripts, CI/CD pipelines, and custom agent integrations.
+
+.Prerequisites
+
+* The `eval-hub-sdk` package is installed:
++
+[source,terminal]
+----
+$ pip install eval-hub-sdk
+----
+* Network access to your {evalhub} instance is available.
+* A valid authentication token is available.
+
+.Procedure
+
+. Filter providers by target type:
++
+Use the `target_type` parameter to find providers that evaluate a specific target.
+Valid values are `model`, `agent`, and `inference_server`.
++
+[NOTE]
+====
+Currently, only the `model` target type is used by built-in providers.
+Filtering by `agent` or `inference_server` returns empty results unless you have added custom provider configurations with these target types.
+====
++
+[source,python]
+----
+from evalhub.client import EvalHubClient
+
+client = EvalHubClient(
+    base_url="https://evalhub.apps.example.com",
+    token="<token>",
+    tenant="<tenant>"
+)
+
+# Find providers that evaluate models
+model_providers = client.providers.list(target_type="model")
+for p in model_providers:
+    print(f"{p.name}: {p.agent.summary if p.agent else 'No agent metadata'}")
+----
+
+. Filter providers by evaluation capability:
++
+Use the `evaluates` parameter to find providers that evaluate a specific capability:
++
+[source,python]
+----
+# Find providers that evaluate retrieval quality
+rag_providers = client.providers.list(evaluates="retrieval quality")
+for p in rag_providers:
+    print(f"{p.name}: {p.agent.recommended_when if p.agent else 'N/A'}")
+----
+
+. Combine filters for precise discovery:
++
+[source,python]
+----
+# Find providers that evaluate models for reasoning
+reasoning_providers = client.providers.list(
+    target_type="model",
+    evaluates="reasoning"
+)
+----
+
+. Access agent metadata on the response objects:
++
+[source,python]
+----
+provider = client.providers.get("lm-evaluation-harness")
+if provider.agent:
+    print(f"Evaluates: {provider.agent.evaluates}")
+    print(f"Complements: {provider.agent.complements}")
+    print(f"Hints: {provider.agent.hints}")
+----
+
+. Handle older API versions that do not include agent metadata:
++
+[source,python]
+----
+providers = client.providers.list()
+for p in providers:
+    if p.agent is not None:
+        # Agent metadata is available
+        print(f"{p.name}: {p.agent.summary}")
+    else:
+        # Connected to an older API version or provider has no agent metadata
+        print(f"{p.name}: No agent metadata available")
+----
+
+.Verification
+
+* Verify that the filtering returns expected results by listing all providers and comparing with the filtered results:
++
+[source,python]
+----
+all_providers = client.providers.list()
+model_providers = client.providers.list(target_type="model")
+print(f"All providers: {len(all_providers)}")
+print(f"Model providers: {len(model_providers)}")
+----
